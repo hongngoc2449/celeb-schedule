@@ -212,8 +212,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
             KHO ÂM NHẠC &amp; SHOW CỦA OSAD
           </h1>
           <p className="text-xs sm:text-sm font-bold text-gray-700 mt-1 max-w-2xl">
-            Tổng hợp <strong className="text-brand-red">{songs.length}</strong> bài hát và{' '}
-            <strong className="text-brand-blue">{shows.length}</strong> show, talkshow, phỏng vấn của Chủ Tịch Mai (Mai Quang Nam).{' '}
+            Tổng hợp các bài hát và show, talkshow, phỏng vấn của Chủ Tịch Mai (Mai Quang Nam).{' '}
             <span className="block text-[11px] text-gray-500 font-medium italic mt-0.5">
               *sưu tập từ nhiều nguồn, khả năng chưa đầy đủ
             </span>
@@ -257,7 +256,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
           }`}
         >
           <Music className="w-5 h-5 text-brand-red" />
-          <span>Sản Phẩm Âm Nhạc ({songs.length})</span>
+          <span>Sản Phẩm Âm Nhạc</span>
         </button>
 
         <button
@@ -269,7 +268,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
           }`}
         >
           <Tv className="w-5 h-5 text-yellow-300" />
-          <span>Show / Talkshow / Phỏng Vấn ({shows.length})</span>
+          <span>Show / Talkshow / Phỏng Vấn</span>
         </button>
       </div>
 
@@ -493,7 +492,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
                     : 'bg-white text-black hover:bg-gray-100'
                 }`}
               >
-                Tất Cả ({songs.length})
+                Tất Cả
               </button>
               <button
                 onClick={() => setSongFilter('ATVNCG')}
@@ -636,7 +635,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
                     : 'bg-white text-black hover:bg-gray-100'
                 }`}
               >
-                Tất Cả ({shows.length})
+                Tất Cả
               </button>
               <button
                 onClick={() => setShowFilter('YOUTUBE')}
@@ -646,7 +645,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
                     : 'bg-white text-black hover:bg-red-50'
                 }`}
               >
-                🎬 Video YouTube ({shows.filter((s) => s.category === 'YOUTUBE').length})
+                🎬 Video YouTube
               </button>
               <button
                 onClick={() => setShowFilter('ARTICLE')}
@@ -656,7 +655,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
                     : 'bg-white text-black hover:bg-blue-50'
                 }`}
               >
-                📰 Báo Chí &amp; Radio ({shows.filter((s) => s.category === 'ARTICLE').length})
+                📰 Báo Chí &amp; Radio
               </button>
               <button
                 onClick={() => setShowFilter('SEARCH')}
@@ -666,7 +665,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
                     : 'bg-white text-black hover:bg-purple-50'
                 }`}
               >
-                📺 TV Show / Phỏng Vấn ({shows.filter((s) => s.category === 'SEARCH').length})
+                📺 TV Show / Phỏng Vấn
               </button>
             </div>
 

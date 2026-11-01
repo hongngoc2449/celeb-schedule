@@ -18,6 +18,8 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
   const heroSubBadge = (t('hero_photo_badge_sub') || '').replace(/SINGER/gi, 'SONGWRITER');
   const rawSticker = t('hero_photo_sticker') || '';
   const heroSticker = rawSticker.includes('NHÀ Ô MAI CHÍNH THỨC') ? 'Offset with OSAD' : (rawSticker || 'Offset with OSAD');
+  const rawHeroBtnMusic = t('hero_btn_music') || '';
+  const heroBtnMusic = rawHeroBtnMusic.replace(/\s*\(\d+\+?\s*Bài\)/gi, '').replace(/\s*96\+?\s*/gi, '').trim() || 'Kho Âm Nhạc & Show';
 
   // Use the new BAZAAR portrait image, falling back gracefully
   const avatarSrc =
@@ -105,7 +107,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               className="neo-btn bg-white hover:bg-purple-100 text-black px-5 py-3 text-base sm:text-lg gap-2 border-2 border-black shadow-brutal"
             >
               <Music className="w-5 h-5 text-purple-600" />
-              <span>{t('hero_btn_music')}</span>
+              <span>{heroBtnMusic}</span>
             </Link>
           </div>
 

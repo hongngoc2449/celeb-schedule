@@ -52,6 +52,19 @@ const FEATURED_TRACKS = [
 export default function Discography({ profile }: { profile?: CelebrityProfile }) {
   const t = (id: string) => getSiteText(profile?.siteTexts, id);
 
+  const discographyDesc = (t('discography_desc') || '')
+    .replace(/96\+?\s*ca\s*khúc/gi, 'các ca khúc')
+    .replace(/96\+?\s*bài\s*hát/gi, 'các bài hát');
+
+  const bannerTitle = (t('discography_banner_title') || '')
+    .replace(/96\+?\s*BÀI\s*HÁT\s*&\s*66\+?\s*SHOW/gi, 'BÀI HÁT & SHOW')
+    .replace(/96\+?\s*/gi, '')
+    .replace(/66\+?\s*/gi, '');
+
+  const bannerDesc = (t('discography_banner_desc') || '')
+    .replace(/66\+?\s*show/gi, 'các show')
+    .replace(/96\+?\s*bài\s*hát/gi, 'các bài hát');
+
   return (
     <section id="music" className="py-16 sm:py-24 px-4 sm:px-8 border-b-3 border-black bg-[#faf7f2] relative overflow-hidden">
       {/* Background Decors */}
@@ -74,7 +87,7 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
             {t('discography_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-xl mx-auto">
-            {t('discography_desc')}
+            {discographyDesc}
           </p>
         </div>
 
@@ -110,7 +123,7 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
                   className="neo-btn bg-white hover:bg-black hover:text-white text-black text-xs px-3 py-1.5 w-full gap-2 font-black shadow-brutal-sm"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Mở Trang Phát Nhạc (96+ Bài)</span>
+                  <span>Mở Kho Âm Nhạc & Show</span>
                 </Link>
               </div>
             </div>
@@ -124,10 +137,10 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
             {t('discography_banner_tag')}
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-black uppercase font-cocogoose">
-            {t('discography_banner_title')}
+            {bannerTitle}
           </h3>
           <p className="text-xs sm:text-sm font-bold text-gray-800 max-w-lg mx-auto">
-            {t('discography_banner_desc')}
+            {bannerDesc}
           </p>
           <div>
             <Link

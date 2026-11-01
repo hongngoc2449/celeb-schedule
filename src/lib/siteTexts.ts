@@ -93,7 +93,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'hero_btn_music',
     section: 'Banner Hero',
     location: 'Nút trắng: Mở kho nhạc',
-    defaultValue: 'Kho Âm Nhạc (96+ Bài)',
+    defaultValue: 'Kho Âm Nhạc & Show',
   },
   {
     id: 'hero_brand_tag',
@@ -202,7 +202,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     section: 'Kho Âm Nhạc',
     location: 'Mô tả mục Âm Nhạc Trang Chủ',
     defaultValue:
-      'Những bản hit làm nên tên tuổi của OSAD (Chủ Tịch Mai). Toàn bộ danh sách 96+ ca khúc đã được tổng hợp tại trang nghe nhạc riêng.',
+      'Những bản hit làm nên tên tuổi của OSAD (Chủ Tịch Mai). Toàn bộ danh sách các ca khúc đã được tổng hợp tại trang nghe nhạc riêng.',
   },
   {
     id: 'discography_banner_tag',
@@ -214,14 +214,14 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'discography_banner_title',
     section: 'Kho Âm Nhạc',
     location: 'Tiêu đề banner vàng mời nghe nhạc',
-    defaultValue: '96+ BÀI HÁT & 66+ SHOW/TALKSHOW CỦA OSAD',
+    defaultValue: 'BÀI HÁT & SHOW/TALKSHOW CỦA OSAD',
   },
   {
     id: 'discography_banner_desc',
     section: 'Kho Âm Nhạc',
     location: 'Mô tả banner vàng mời nghe nhạc',
     defaultValue:
-      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, cùng danh sách 66+ show, talkshow và phỏng vấn chính thức (*sưu tập từ nhiều nguồn, khả năng chưa đầy đủ).',
+      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, cùng danh sách các show, talkshow và phỏng vấn chính thức (*sưu tập từ nhiều nguồn, khả năng chưa đầy đủ).',
   },
   {
     id: 'discography_banner_btn',
@@ -297,7 +297,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'about_highlight_2_title',
     section: 'Tiểu Sử & Bio',
     location: 'Tiêu đề điểm nhấn 2',
-    defaultValue: 'Kho 96+ Sản Phẩm Âm Nhạc',
+    defaultValue: 'Kho Sản Phẩm Âm Nhạc & Show',
   },
   {
     id: 'about_highlight_2_desc',

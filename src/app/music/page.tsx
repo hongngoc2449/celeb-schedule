@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Kho Âm Nhạc & Show/Talkshow OSAD | Fandom Ô Mai',
   description:
-    'Nghe toàn bộ sản phẩm âm nhạc, bản hit, collab và theo dõi toàn bộ 66+ show truyền hình, talkshow, phỏng vấn của Chủ Tịch Mai (OSAD - Mai Quang Nam).',
+    'Nghe các sản phẩm âm nhạc, bản hit, collab và theo dõi các show truyền hình, talkshow, phỏng vấn của Chủ Tịch Mai (OSAD - Mai Quang Nam).',
 };
 
 export default async function MusicPage() {

@@ -23,6 +23,10 @@ function TikTokIcon({ className = 'w-5 h-5' }: { className?: string }) {
 export default function AboutSection({ profile }: { profile: CelebrityProfile }) {
   const t = (id: string) => getSiteText(profile?.siteTexts, id);
 
+  const highlight2Title = (t('about_highlight_2_title') || '')
+    .replace(/\s*96\+?\s*/i, ' ')
+    .trim() || 'Kho Sản Phẩm Âm Nhạc & Show';
+
   const socials = {
     facebook: profile.socialLinks?.facebook || 'https://www.facebook.com/share/1F3py3TZaL/?mibextid=wwXIfr',
     instagram: profile.socialLinks?.instagram || 'https://www.instagram.com/osad_chutich/',
@@ -165,7 +169,7 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
                 <div className="p-3 bg-white border-2 border-black rounded-xl shadow-brutal-sm flex items-start gap-3">
                   <Music className="w-6 h-6 text-brand-blue shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-extrabold text-sm text-black">{t('about_highlight_2_title')}</h5>
+                    <h5 className="font-extrabold text-sm text-black">{highlight2Title}</h5>
                     <p className="text-xs font-semibold text-gray-600">{t('about_highlight_2_desc')}</p>
                   </div>
                 </div>

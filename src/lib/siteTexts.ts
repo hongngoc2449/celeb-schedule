@@ -29,8 +29,8 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
   {
     id: 'header_nav_music',
     section: 'Header & Logo',
-    location: 'Nút Menu: Âm Nhạc & Show',
-    defaultValue: 'Âm Nhạc & Show',
+    location: 'Nút Menu: Âm nhạc/Show',
+    defaultValue: 'Âm nhạc/Show',
   },
   {
     id: 'header_nav_about',

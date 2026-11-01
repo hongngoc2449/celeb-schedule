@@ -35,7 +35,7 @@ export default function Footer({ profile }: { profile?: CelebrityProfile }) {
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-gray-600">
             <Link href="/#schedule" className="hover:text-black hover:underline">Lịch Trình</Link>
             <span>•</span>
-            <Link href="/music" className="text-purple-700 hover:underline font-black">Kho Âm Nhạc (96+ Bài)</Link>
+            <Link href="/music" className="text-purple-700 hover:underline font-black">Âm nhạc/Show</Link>
             <span>•</span>
             <Link href="/#about" className="hover:text-black hover:underline">Tiểu Sử</Link>
             <span>•</span>

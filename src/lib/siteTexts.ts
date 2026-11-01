@@ -329,6 +329,18 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     location: 'Mô tả điểm nhấn 4',
     defaultValue: 'Tự sáng tác lời, giai điệu và tham gia sản xuất âm nhạc',
   },
+  {
+    id: 'about_social_title',
+    section: 'Tiểu Sử & Bio',
+    location: 'Tiêu đề khối Mạng xã hội',
+    defaultValue: 'MẠNG XÃ HỘI CHỦ TỊCH MAI',
+  },
+  {
+    id: 'about_social_desc',
+    section: 'Tiểu Sử & Bio',
+    location: 'Ghi chú phụ khối Mạng xã hội',
+    defaultValue: 'Nhấn vào icon để kết nối trực tiếp',
+  },
 
   // 6. Thư Viện Ảnh (Gallery)
   {

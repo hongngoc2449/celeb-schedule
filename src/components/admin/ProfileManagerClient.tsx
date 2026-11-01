@@ -257,6 +257,24 @@ export default function ProfileManagerClient({ initialProfile }: { initialProfil
                 className="neo-input w-full text-sm font-mono"
               />
             </div>
+
+            <div>
+              <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                Spotify Artist URL
+              </label>
+              <input
+                type="url"
+                value={profile.socialLinks?.spotify || ''}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    socialLinks: { ...profile.socialLinks, spotify: e.target.value },
+                  })
+                }
+                className="neo-input w-full text-sm font-mono"
+                placeholder="https://open.spotify.com/artist/..."
+              />
+            </div>
           </div>
         </div>
 

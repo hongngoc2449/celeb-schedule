@@ -21,7 +21,7 @@ import {
   Flame,
   X
 } from 'lucide-react';
-import { GeoCircle, GeoCross, GeoTriangle, GeoSquare, GeoArch, GeoBar } from '@/components/GeometricDecor';
+import { GeoCircle, GeoS, GeoTriangle, GeoSquare, GeoArch, GeoBar } from '@/components/GeometricDecor';
 
 interface Props {
   initialSchedules: ScheduleItem[];
@@ -124,7 +124,7 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
         <GeoTriangle className="w-12 h-12" strokeWidth={3.5} color="#16A34A" />
       </div>
       <div className="absolute top-28 right-8 hidden xl:block opacity-60 rotate-45 pointer-events-none select-none">
-        <GeoCross className="w-12 h-12" strokeWidth={3.5} color="#2563EB" />
+        <GeoS className="w-12 h-12" strokeWidth={3.5} color="#2563EB" />
       </div>
       <div className="absolute bottom-20 left-10 hidden xl:block opacity-60 rotate-12 pointer-events-none select-none">
         <GeoCircle className="w-12 h-12" strokeWidth={3.5} color="#DC2626" />
@@ -238,7 +238,7 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                   {/* Geometric Deco Pill */}
                   <div className="hidden md:inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border-2 border-black shadow-brutal-xs -rotate-1 self-center">
                     <GeoCircle className="w-3.5 h-3.5" color="#DC2626" />
-                    <GeoCross className="w-3.5 h-3.5" color="#2563EB" />
+                    <GeoS className="w-3.5 h-3.5" color="#2563EB" />
                     <GeoTriangle className="w-3.5 h-3.5" color="#16A34A" />
                     <GeoSquare className="w-3.5 h-3.5" color="#D97706" />
                   </div>

@@ -10,7 +10,7 @@
    - **Hero Section:** Visual tổng tài "Chủ Tịch Mai", câu trích dẫn, mascot "OFFSET W OSAD".
    - **Schedule Board (Bảng Kẹp Clipboard):** Tái hiện 100% hình mẫu bảng kẹp tài liệu kim loại thực tế với đầy đủ 24 sự kiện tháng 11 & 12/2026, sticker xéo "LỊCH CÔNG TÁC CHỦ TỊCH MAI", giấy note vàng "THÁNG 11 & 12 2026", chữ ký vẽ tay và các doodle icon sinh động (🎁, 🎮, 🤫, 😎, ⭐).
    - **Lọc & Tìm Kiếm Thông Minh:** Lọc theo Tháng 11 / Tháng 12, tìm kiếm show theo địa điểm và tên sự kiện.
-   - **About & Profile:** Tiểu sử sự nghiệp, thành tích tại Anh Trai Vượt Ngàn Chông Gai 2024, thương hiệu OXAD OMAI.
+   - **About & Profile:** Tiểu sử sự nghiệp, thành tích tại Anh Trai Vượt Ngàn Chông Gai 2024, thương hiệu OSAD OMAI.
    - **Discography:** Danh sách các bản hit triệu view (Người Âm Phủ, Củ Lạc, Anh Mệt Rồi...).
    - **Thư Viện Ảnh (Gallery):** Lưới ảnh polaroid kèm tính năng phóng to (Lightbox).
    - **Booking & Contact:** Thẻ thông tin quản lý, copy email nhanh và form gửi lời mời hợp tác trực tuyến.

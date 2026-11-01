@@ -29,3 +29,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Lỗi khi thêm show mới' }, { status: 500 });
   }
 }
+

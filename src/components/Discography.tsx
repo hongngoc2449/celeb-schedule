@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Music, Play, ArrowRight, Sparkles } from 'lucide-react';
-import { GeoCluster, GeoCircle, GeoTriangle, GeoCross } from '@/components/GeometricDecor';
+import { GeoCluster, GeoCircle, GeoTriangle, GeoS } from '@/components/GeometricDecor';
 import { CelebrityProfile } from '@/types';
 import { getSiteText } from '@/lib/siteTexts';
 
@@ -56,7 +56,7 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
     <section id="music" className="py-16 sm:py-24 px-4 sm:px-8 border-b-3 border-black bg-[#faf7f2] relative overflow-hidden">
       {/* Background Decors */}
       <div className="absolute top-10 left-8 hidden md:block opacity-40 -rotate-12 pointer-events-none">
-        <GeoCross className="w-10 h-10" color="#2563EB" />
+        <GeoS className="w-10 h-10" color="#2563EB" />
       </div>
       <div className="absolute bottom-10 right-8 hidden md:block opacity-40 rotate-12 pointer-events-none">
         <GeoTriangle className="w-10 h-10" color="#16A34A" />

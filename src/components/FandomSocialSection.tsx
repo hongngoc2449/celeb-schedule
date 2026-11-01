@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { CelebrityProfile } from '@/types';
 import { Mail, Copy, Check, ExternalLink, Globe, Sparkles, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
-import { OxadOmaiStampBadge, GeoCluster, GeoTriangle, GeoCross, GeoCircle } from '@/components/GeometricDecor';
+import { OsadOmaiStampBadge, GeoCluster, GeoTriangle, GeoS, GeoCircle } from '@/components/GeometricDecor';
 import { getSiteText } from '@/lib/siteTexts';
 
 export default function FandomSocialSection({ profile }: { profile: CelebrityProfile }) {
@@ -28,7 +28,7 @@ export default function FandomSocialSection({ profile }: { profile: CelebrityPro
     <section id="contact" className="py-16 sm:py-24 px-4 sm:px-8 bg-[#f5ede2] relative overflow-hidden">
       {/* Background Floating Decors */}
       <div className="absolute top-12 left-10 hidden lg:block opacity-40 -rotate-12 pointer-events-none">
-        <GeoCross className="w-10 h-10" color="#2563EB" />
+        <GeoS className="w-10 h-10" color="#2563EB" />
       </div>
       <div className="absolute bottom-12 right-10 hidden lg:block opacity-40 rotate-12 pointer-events-none">
         <GeoCircle className="w-10 h-10" color="#DC2626" />
@@ -82,7 +82,7 @@ export default function FandomSocialSection({ profile }: { profile: CelebrityPro
                 <span className="inline-block text-[11px] font-black bg-pink-100 text-pink-900 border border-black px-3 py-1 rounded-full">
                   {t('contact_fandom_tag')}
                 </span>
-                <OxadOmaiStampBadge className="scale-90" />
+                <OsadOmaiStampBadge className="scale-90" />
               </div>
             </div>
 

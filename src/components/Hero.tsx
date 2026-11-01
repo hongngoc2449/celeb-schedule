@@ -4,10 +4,10 @@ import { Calendar, Music, ArrowDown } from 'lucide-react';
 import { CelebrityProfile } from '@/types';
 import {
   GeoCircle,
-  GeoCross,
+  GeoS,
   GeoTriangle,
   GeoSquare,
-  OxadOmaiStampBadge
+  OsadOmaiStampBadge
 } from '@/components/GeometricDecor';
 import { getSiteText } from '@/lib/siteTexts';
 
@@ -19,7 +19,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
       {/* Playful Floating Geometric Background Shapes */}
       <div className="absolute top-8 left-6 hidden lg:flex items-center gap-3 opacity-70 -rotate-12 pointer-events-none select-none">
         <GeoCircle className="w-10 h-10" strokeWidth={3.5} color="#DC2626" />
-        <GeoCross className="w-9 h-9" strokeWidth={3.5} color="#2563EB" />
+        <GeoS className="w-9 h-9" strokeWidth={3.5} color="#2563EB" />
       </div>
 
       <div className="absolute top-12 right-12 hidden lg:flex items-center gap-3 opacity-70 rotate-12 pointer-events-none select-none">
@@ -28,7 +28,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
       </div>
 
       <div className="absolute bottom-6 left-1/3 hidden md:block opacity-50 rotate-45 pointer-events-none select-none">
-        <GeoCross className="w-7 h-7" strokeWidth={3} color="#2563EB" />
+        <GeoS className="w-7 h-7" strokeWidth={3} color="#2563EB" />
       </div>
 
       <div className="absolute top-1/2 right-10 hidden md:block opacity-60 -rotate-6 pointer-events-none select-none">
@@ -48,7 +48,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             </span>
             <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full border-2 border-black shadow-brutal-xs">
               <GeoCircle className="w-3.5 h-3.5" strokeWidth={4} color="#DC2626" />
-              <GeoCross className="w-3.5 h-3.5" strokeWidth={4} color="#2563EB" />
+              <GeoS className="w-3.5 h-3.5" strokeWidth={4} color="#2563EB" />
               <GeoTriangle className="w-3.5 h-3.5" strokeWidth={4} color="#16A34A" />
               <GeoSquare className="w-3.5 h-3.5" strokeWidth={4} color="#D97706" />
             </div>
@@ -96,15 +96,15 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             </Link>
           </div>
 
-          {/* Decorative OXAD OMAI Brand Tag Bar */}
+          {/* Decorative OSAD OMAI Brand Tag Bar */}
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <div className="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border-2 border-black shadow-brutal-xs">
               <span className="text-xs font-black uppercase text-gray-900 font-cocogoose tracking-wide">
-                OXAD • OMAI
+                OSAD • OMAI
               </span>
               <div className="flex items-center gap-1.5">
                 <GeoCircle className="w-4 h-4" strokeWidth={3.8} color="#DC2626" />
-                <GeoCross className="w-4 h-4" strokeWidth={3.8} color="#2563EB" />
+                <GeoS className="w-4 h-4" strokeWidth={3.8} color="#2563EB" />
                 <GeoTriangle className="w-4 h-4" strokeWidth={3.8} color="#16A34A" />
                 <GeoSquare className="w-4 h-4" strokeWidth={3.8} color="#D97706" />
               </div>
@@ -154,9 +154,9 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               </div>
             </div>
 
-            {/* Authentic OXAD OMAI Stamp Badge Pinned Top-Right */}
+            {/* Authentic OSAD OMAI Stamp Badge Pinned Top-Right */}
             <div className="absolute -top-5 -right-5 z-20 rotate-6 hover:rotate-0 transition-transform">
-              <OxadOmaiStampBadge />
+              <OsadOmaiStampBadge />
             </div>
 
             {/* Floating Tag Bottom-Left */}

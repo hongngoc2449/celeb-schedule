@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { CelebrityProfile } from '@/types';
 import { Award, Music, Heart, Mic2, Facebook, Instagram, Youtube, ExternalLink, Globe } from 'lucide-react';
-import { GeoCircle, GeoCross, GeoTriangle, GeoSquare, GeoCluster } from '@/components/GeometricDecor';
+import { GeoCircle, GeoS, GeoTriangle, GeoSquare, GeoCluster } from '@/components/GeometricDecor';
 import { getSiteText } from '@/lib/siteTexts';
 
 function SpotifyIcon({ className = 'w-5 h-5' }: { className?: string }) {

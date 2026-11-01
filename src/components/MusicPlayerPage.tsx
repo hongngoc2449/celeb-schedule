@@ -26,7 +26,7 @@ import {
   Video
 } from 'lucide-react';
 import Link from 'next/link';
-import { OxadOmaiStampBadge, GeoCluster } from '@/components/GeometricDecor';
+import { OsadOmaiStampBadge, GeoCluster } from '@/components/GeometricDecor';
 
 interface Props {
   songs: SongItem[];
@@ -219,7 +219,7 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
 
         <div className="flex items-center gap-3">
           <div className="hidden lg:block">
-            <OxadOmaiStampBadge className="scale-90" />
+            <OsadOmaiStampBadge className="scale-90" />
           </div>
           {mainTab === 'MUSIC' ? (
             <button

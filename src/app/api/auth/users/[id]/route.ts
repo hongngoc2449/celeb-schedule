@@ -24,3 +24,4 @@ export async function DELETE(
     return NextResponse.json({ error: 'Lỗi máy chủ khi xóa người dùng' }, { status: 500 });
   }
 }
+

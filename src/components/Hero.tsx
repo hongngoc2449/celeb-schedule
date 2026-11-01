@@ -9,8 +9,11 @@ import {
   GeoSquare,
   OxadOmaiStampBadge
 } from '@/components/GeometricDecor';
+import { getSiteText } from '@/lib/siteTexts';
 
 export default function Hero({ profile }: { profile: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
+
   return (
     <section className="relative overflow-hidden py-10 lg:py-16 px-4 sm:px-8 border-b-3 border-black bg-[#fef7ee]">
       {/* Playful Floating Geometric Background Shapes */}
@@ -33,15 +36,15 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
       </div>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-        {/* Left Column: Text & Badges (Col span 7 on large, 8 on xl for extra breathing room) */}
+        {/* Left Column: Text & Badges */}
         <div className="lg:col-span-7 xl:col-span-8 space-y-6">
           {/* Top Stickers */}
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="neo-sticker bg-brand-red text-white -rotate-2 text-xs sm:text-sm">
-              🔥 HOT SCHEDULE 2026
+              {t('hero_sticker_hot')}
             </span>
             <span className="neo-sticker bg-brand-yellow text-black rotate-1 text-xs sm:text-sm font-black">
-              🍬 FANDOM Ô MAI
+              {t('hero_sticker_fandom')}
             </span>
             <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full border-2 border-black shadow-brutal-xs">
               <GeoCircle className="w-3.5 h-3.5" strokeWidth={4} color="#DC2626" />
@@ -54,30 +57,22 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
           {/* Main Title */}
           <div>
             <h1 className="text-4xl sm:text-6xl xl:text-7xl font-black text-black tracking-tight leading-[1.05] uppercase font-cocogoose">
-              LỊCH CÔNG TÁC <br />
+              {t('hero_title_prefix')} <br />
               <span className="inline-block bg-brand-yellow px-3 py-1 mt-2 border-3 border-black shadow-brutal rotate-1 text-black">
-                CHỦ TỊCH MAI
+                {t('hero_title_highlight')}
               </span>
             </h1>
             
-            {/* Expanded description without width clamp & with whitespace-nowrap for 'Ô Mai' */}
+            {/* Description */}
             <p className="mt-4 text-base sm:text-lg text-gray-800 font-semibold max-w-2xl lg:max-w-3xl leading-relaxed">
-              Cổng thông tin &amp; cập nhật lịch trình biểu diễn, concert, livestream và toàn bộ âm nhạc chính thức của Rapper / Ca sĩ{' '}
-              <strong className="text-black font-extrabold">
-                {profile.stageName} ({profile.fullName})
-              </strong>{' '}
-              dành cho đại gia đình{' '}
-              <span className="inline-block whitespace-nowrap bg-brand-pink px-2.5 py-0.5 rounded-md font-black border-2 border-black text-black shadow-brutal-xs align-baseline">
-                Ô Mai
-              </span>
-              .
+              {t('hero_description')}
             </p>
           </div>
 
           {/* Quote Box */}
           <div className="neo-box-sm bg-white p-4 border-l-8 border-l-brand-red max-w-2xl">
             <p className="italic text-sm sm:text-base font-bold text-gray-900">
-              &quot;{profile.quote}&quot;
+              &quot;{profile?.quote || t('hero_quote')}&quot;
             </p>
           </div>
 
@@ -88,7 +83,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               className="neo-btn bg-brand-yellow hover:bg-yellow-400 text-black px-6 py-3 text-base sm:text-lg gap-2"
             >
               <Calendar className="w-5 h-5 text-brand-red" />
-              <span>Xem Lịch Trình Ngay</span>
+              <span>{t('hero_btn_schedule')}</span>
               <ArrowDown className="w-4 h-4" />
             </a>
 
@@ -97,11 +92,11 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               className="neo-btn bg-white hover:bg-purple-100 text-black px-5 py-3 text-base sm:text-lg gap-2 border-2 border-black shadow-brutal"
             >
               <Music className="w-5 h-5 text-purple-600" />
-              <span>Kho Âm Nhạc (96+ Bài)</span>
+              <span>{t('hero_btn_music')}</span>
             </Link>
           </div>
 
-          {/* Decorative OXAD OMAI Brand Tag Bar (replacing the old 3 stat boxes) */}
+          {/* Decorative OXAD OMAI Brand Tag Bar */}
           <div className="pt-2 flex flex-wrap items-center gap-3">
             <div className="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border-2 border-black shadow-brutal-xs">
               <span className="text-xs font-black uppercase text-gray-900 font-cocogoose tracking-wide">
@@ -115,12 +110,12 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               </div>
             </div>
             <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-              ✦ Cổng lịch trình &amp; kho nhạc nghệ sĩ chính thức ✦
+              {t('hero_brand_tag')}
             </span>
           </div>
         </div>
 
-        {/* Right Column: Visual Avatar & Collage (Col span 5 on large, 4 on xl) */}
+        {/* Right Column: Visual Avatar & Collage */}
         <div className="lg:col-span-5 xl:col-span-4 flex justify-center">
           <div className="relative w-full max-w-[380px] sm:max-w-[420px] aspect-[4/5]">
             {/* Background Block behind photo */}
@@ -130,7 +125,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             <div className="absolute inset-0 bg-white rounded-3xl border-3 border-black shadow-brutal overflow-hidden -rotate-2 flex flex-col">
               <div className="relative flex-1 bg-gradient-to-b from-amber-100 to-amber-200">
                 <Image
-                  src={profile.avatarUrl || '/images/avt-opt.png'}
+                  src={profile?.avatarUrl || '/images/avt-opt.png'}
                   alt="Chủ Tịch Mai OSAD"
                   fill
                   priority
@@ -141,8 +136,12 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               {/* Bottom Badge inside photo */}
               <div className="p-3 bg-white border-t-2 border-black flex items-center justify-between">
                 <div>
-                  <h4 className="font-black text-base text-black font-cocogoose">CHỦ TỊCH MAI</h4>
-                  <p className="text-[11px] font-bold text-gray-600">OSAD • SINGER &amp; RAPPER • FANDOM Ô MAI</p>
+                  <h4 className="font-black text-base text-black font-cocogoose">
+                    {t('hero_photo_badge_title')}
+                  </h4>
+                  <p className="text-[11px] font-bold text-gray-600">
+                    {t('hero_photo_badge_sub')}
+                  </p>
                 </div>
                 <div className="w-10 h-10 relative">
                   <Image
@@ -162,7 +161,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
 
             {/* Floating Tag Bottom-Left */}
             <div className="absolute -bottom-4 -left-4 neo-sticker bg-brand-red text-white rotate-6 text-xs sm:text-sm z-20">
-              🍬 NHÀ Ô MAI CHÍNH THỨC
+              {t('hero_photo_sticker')}
             </div>
           </div>
         </div>

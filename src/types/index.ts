@@ -67,6 +67,14 @@ export interface CelebrityProfile {
     youtube: string;
     spotify: string;
   };
+  siteTexts?: Record<string, string>;
+}
+
+export interface SiteTextDefinition {
+  id: string;
+  section: string;
+  location: string;
+  defaultValue: string;
 }
 
 export interface GalleryItem {

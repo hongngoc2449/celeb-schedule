@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo, useRef } from 'react';
-import { SongItem } from '@/types';
+import { SongItem, CelebrityProfile } from '@/types';
+import { getSiteText } from '@/lib/siteTexts';
 import {
   Music,
   Play,
@@ -24,9 +25,11 @@ import { OxadOmaiStampBadge, GeoCluster } from '@/components/GeometricDecor';
 
 interface Props {
   songs: SongItem[];
+  profile?: CelebrityProfile;
 }
 
-export default function MusicPlayerPage({ songs }: Props) {
+export default function MusicPlayerPage({ songs, profile }: Props) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
   // Current playing song (default to first song)
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -131,10 +134,10 @@ export default function MusicPlayerPage({ songs }: Props) {
             <GeoCluster className="hidden md:inline-flex" />
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-black uppercase font-cocogoose tracking-tight">
-            KHO ÂM NHẠC CỦA OSAD
+            {t('music_page_title')}
           </h1>
           <p className="text-xs sm:text-sm font-bold text-gray-700 mt-1 max-w-2xl">
-            Tổng hợp đầy đủ <strong className="text-brand-red">{songs.length}</strong> bài hát, sản phẩm solo, collab và sân khấu của Chủ Tịch Mai (Mai Quang Nam) dành cho đại gia đình Fandom Ô Mai.
+            {t('music_page_desc')}
           </p>
         </div>
 

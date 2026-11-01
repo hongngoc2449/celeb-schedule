@@ -19,16 +19,16 @@ export default async function HomePage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar profile={profile} />
       <main className="flex-1">
         <Hero profile={profile} />
-        <ScheduleBoard initialSchedules={schedules} />
+        <ScheduleBoard initialSchedules={schedules} profile={profile} />
         <AboutSection profile={profile} />
-        <Discography />
-        <GallerySection gallery={gallery} />
+        <Discography profile={profile} />
+        <GallerySection gallery={gallery} profile={profile} />
         <FandomSocialSection profile={profile} />
       </main>
-      <Footer />
+      <Footer profile={profile} />
     </>
   );
 }

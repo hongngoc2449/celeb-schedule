@@ -47,3 +47,4 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: 'Lỗi máy chủ khi đổi mật khẩu' }, { status: 500 });
   }
 }
+

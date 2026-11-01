@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Music, Play, ArrowRight, Sparkles } from 'lucide-react';
 import { GeoCluster, GeoCircle, GeoTriangle, GeoCross } from '@/components/GeometricDecor';
+import { CelebrityProfile } from '@/types';
+import { getSiteText } from '@/lib/siteTexts';
 
 const FEATURED_TRACKS = [
   {
@@ -47,7 +49,9 @@ const FEATURED_TRACKS = [
   },
 ];
 
-export default function Discography() {
+export default function Discography({ profile }: { profile?: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
+
   return (
     <section id="music" className="py-16 sm:py-24 px-4 sm:px-8 border-b-3 border-black bg-[#faf7f2] relative overflow-hidden">
       {/* Background Decors */}
@@ -62,15 +66,15 @@ export default function Discography() {
         <div className="text-center mb-12 space-y-3">
           <div className="inline-flex items-center gap-2">
             <span className="neo-sticker bg-brand-yellow text-black -rotate-1 text-xs sm:text-sm font-black">
-              🎵 DISCOGRAPHY
+              {t('discography_header_tag')}
             </span>
             <GeoCluster className="hidden sm:inline-flex" />
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-black uppercase font-cocogoose">
-            ÂM NHẠC & BẢN HIT NỔI BẬT
+            {t('discography_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-xl mx-auto">
-            Những bản hit làm nên tên tuổi của OSAD (Chủ Tịch Mai). Toàn bộ danh sách 96+ ca khúc đã được tổng hợp tại trang nghe nhạc riêng.
+            {t('discography_desc')}
           </p>
         </div>
 
@@ -117,20 +121,20 @@ export default function Discography() {
         <div className="neo-box p-6 sm:p-8 bg-brand-yellow text-center space-y-4 shadow-brutal-lg max-w-3xl mx-auto border-3 border-black">
           <div className="inline-flex items-center gap-2 neo-sticker bg-white text-black text-xs font-black">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            KHO ÂM NHẠC ĐẦY ĐỦ NHẤT
+            {t('discography_banner_tag')}
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-black uppercase font-cocogoose">
-            96+ BÀI HÁT, COLLAB & SÂN KHẤU CỦA OSAD
+            {t('discography_banner_title')}
           </h3>
           <p className="text-xs sm:text-sm font-bold text-gray-800 max-w-lg mx-auto">
-            Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, tìm kiếm theo tên hoặc nghệ sĩ đồng hành.
+            {t('discography_banner_desc')}
           </p>
           <div>
             <Link
               href="/music"
               className="neo-btn bg-brand-red text-white hover:bg-red-700 px-6 py-3 text-sm sm:text-base font-black gap-2 shadow-brutal"
             >
-              <span>Vào Trang Nghe Nhạc Trực Tuyến</span>
+              <span>{t('discography_banner_btn')}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

@@ -1,7 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { CelebrityProfile } from '@/types';
+import { getSiteText } from '@/lib/siteTexts';
 
-export default function Footer() {
+export default function Footer({ profile }: { profile?: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
+
   return (
     <footer className="border-t-3 border-black bg-white py-10 px-4 sm:px-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
@@ -21,26 +25,31 @@ export default function Footer() {
               OFFSET W OSAD • FANDOM Ô MAI
             </span>
             <p className="text-[11px] font-bold text-gray-500">
-              Blog: OwO_Offset with OSAD • © 2026 Mai Quang Nam (OSAD - Chủ Tịch Mai)
+              {t('footer_copyright')}
             </p>
           </div>
         </div>
 
         {/* Links & Disclaimer */}
-        <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-gray-600">
-          <Link href="/#schedule" className="hover:text-black hover:underline">Lịch Trình</Link>
-          <span>•</span>
-          <Link href="/music" className="text-purple-700 hover:underline font-black">Kho Âm Nhạc (96+ Bài)</Link>
-          <span>•</span>
-          <Link href="/#about" className="hover:text-black hover:underline">Tiểu Sử</Link>
-          <span>•</span>
-          <Link href="/#gallery" className="hover:text-black hover:underline">Thư Viện Ảnh</Link>
-          <span>•</span>
-          <Link href="/#contact" className="hover:text-black hover:underline">Liên Hệ Blog</Link>
-          <span>•</span>
-          <Link href="/admin" className="text-brand-red hover:underline font-black">
-            Admin
-          </Link>
+        <div className="flex flex-col md:items-end gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-bold text-gray-600">
+            <Link href="/#schedule" className="hover:text-black hover:underline">Lịch Trình</Link>
+            <span>•</span>
+            <Link href="/music" className="text-purple-700 hover:underline font-black">Kho Âm Nhạc (96+ Bài)</Link>
+            <span>•</span>
+            <Link href="/#about" className="hover:text-black hover:underline">Tiểu Sử</Link>
+            <span>•</span>
+            <Link href="/#gallery" className="hover:text-black hover:underline">Thư Viện Ảnh</Link>
+            <span>•</span>
+            <Link href="/#contact" className="hover:text-black hover:underline">Liên Hệ Blog</Link>
+            <span>•</span>
+            <Link href="/admin" className="text-brand-red hover:underline font-black">
+              Admin
+            </Link>
+          </div>
+          <p className="text-[11px] italic font-semibold text-gray-500">
+            &quot;{t('footer_quote')}&quot;
+          </p>
         </div>
       </div>
     </footer>

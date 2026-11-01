@@ -2,8 +2,11 @@ import Image from 'next/image';
 import { CelebrityProfile } from '@/types';
 import { Award, Music, Heart, Mic2 } from 'lucide-react';
 import { GeoCircle, GeoCross, GeoTriangle, GeoSquare, GeoCluster } from '@/components/GeometricDecor';
+import { getSiteText } from '@/lib/siteTexts';
 
 export default function AboutSection({ profile }: { profile: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
+
   return (
     <section id="about" className="py-16 sm:py-24 px-4 sm:px-8 border-b-3 border-black bg-white relative overflow-hidden">
       {/* Background Geometric Icons */}
@@ -18,15 +21,15 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
         <div className="text-center mb-12 space-y-3">
           <div className="inline-flex items-center gap-2">
             <span className="neo-sticker bg-brand-pink text-black -rotate-1 text-xs sm:text-sm font-black">
-              ⚡ PROFILE & BIO
+              {t('about_header_tag')}
             </span>
             <GeoCluster className="hidden sm:inline-flex" />
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-black uppercase font-cocogoose">
-            TIỂU SỬ & PHONG CÁCH
+            {t('about_section_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-xl mx-auto">
-            Hành trình sáng tạo nghệ thuật độc bản và dấu ấn âm nhạc rực rỡ của {profile.fullName} cùng Fandom Ô Mai.
+            {t('about_section_desc')}
           </p>
         </div>
 
@@ -53,13 +56,13 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
                     className="object-contain"
                   />
                 </div>
-                <h3 className="text-xl font-black text-black font-cocogoose">CHỦ TỊCH MAI</h3>
-                <p className="text-xs font-bold text-brand-red uppercase">MAI QUANG NAM • RAPPER & SONGWRITER</p>
+                <h3 className="text-xl font-black text-black font-cocogoose">{t('about_card_title')}</h3>
+                <p className="text-xs font-bold text-brand-red uppercase">{t('about_card_subtitle')}</p>
               </div>
 
               <div className="bg-white border-2 border-black rounded-xl p-3 text-center shadow-brutal-sm">
                 <p className="text-xs font-bold text-gray-800">
-                  &quot;Người tạo nên giai điệu vui vẻ, tích cực cho mọi tâm hồn Ô Mai&quot;
+                  &quot;{t('about_card_quote')}&quot;
                 </p>
               </div>
             </div>
@@ -81,32 +84,32 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
                 <div className="p-3 bg-white border-2 border-black rounded-xl shadow-brutal-sm flex items-start gap-3">
                   <Award className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-extrabold text-sm text-black">Anh Trai Vượt Ngàn Chông Gai</h5>
-                    <p className="text-xs font-semibold text-gray-600">Thành viên nổi bật truyền cảm hứng 2024</p>
+                    <h5 className="font-extrabold text-sm text-black">{t('about_highlight_1_title')}</h5>
+                    <p className="text-xs font-semibold text-gray-600">{t('about_highlight_1_desc')}</p>
                   </div>
                 </div>
 
                 <div className="p-3 bg-white border-2 border-black rounded-xl shadow-brutal-sm flex items-start gap-3">
                   <Music className="w-6 h-6 text-brand-blue shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-extrabold text-sm text-black">Kho 96+ Sản Phẩm Âm Nhạc</h5>
-                    <p className="text-xs font-semibold text-gray-600">Hit solo, collab, stage và các sản phẩm tự sản xuất</p>
+                    <h5 className="font-extrabold text-sm text-black">{t('about_highlight_2_title')}</h5>
+                    <p className="text-xs font-semibold text-gray-600">{t('about_highlight_2_desc')}</p>
                   </div>
                 </div>
 
                 <div className="p-3 bg-white border-2 border-black rounded-xl shadow-brutal-sm flex items-start gap-3">
                   <Heart className="w-6 h-6 text-brand-red shrink-0 mt-0.5" />
                   <div>
-                    <h5 className="font-extrabold text-sm text-black">Đại Gia Đình Fandom Ô Mai</h5>
-                    <p className="text-xs font-semibold text-gray-600">Cộng đồng fan thân yêu & gắn kết nhất</p>
+                    <h5 className="font-extrabold text-sm text-black">{t('about_highlight_3_title')}</h5>
+                    <p className="text-xs font-semibold text-gray-600">{t('about_highlight_3_desc')}</p>
                   </div>
                 </div>
 
                 <div className="p-3 bg-white border-2 border-black rounded-xl shadow-brutal-sm flex items-start gap-3">
                   <span className="text-xl">🎹</span>
                   <div>
-                    <h5 className="font-extrabold text-sm text-black">Sáng Tác & Sản Xuất</h5>
-                    <p className="text-xs font-semibold text-gray-600">Tự sáng tác lời, giai điệu và tham gia sản xuất âm nhạc</p>
+                    <h5 className="font-extrabold text-sm text-black">{t('about_highlight_4_title')}</h5>
+                    <p className="text-xs font-semibold text-gray-600">{t('about_highlight_4_desc')}</p>
                   </div>
                 </div>
               </div>

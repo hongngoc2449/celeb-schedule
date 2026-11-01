@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { GalleryItem } from '@/types';
+import { GalleryItem, CelebrityProfile } from '@/types';
 import { Image as ImageIcon, X, Maximize2 } from 'lucide-react';
+import { getSiteText } from '@/lib/siteTexts';
 
-export default function GallerySection({ gallery }: { gallery: GalleryItem[] }) {
+export default function GallerySection({ gallery, profile }: { gallery: GalleryItem[]; profile?: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
   const [activeImage, setActiveImage] = useState<GalleryItem | null>(null);
 
   return (
@@ -13,13 +15,13 @@ export default function GallerySection({ gallery }: { gallery: GalleryItem[] }) 
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 space-y-3">
           <span className="neo-sticker bg-brand-lightgreen text-black rotate-1 text-xs sm:text-sm font-black">
-            📸 PHOTO ARCHIVE
+            {t('gallery_header_tag')}
           </span>
           <h2 className="text-3xl sm:text-5xl font-black text-black uppercase font-cocogoose">
-            THƯ VIỆN ẢNH & SỰ KIỆN
+            {t('gallery_section_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-xl mx-auto">
-            Những khoảnh khắc đáng nhớ trên sân khấu và hậu trường của Chủ Tịch Mai.
+            {t('gallery_section_desc')}
           </p>
         </div>
 

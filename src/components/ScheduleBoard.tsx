@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useRef } from 'react';
 import Image from 'next/image';
-import { ScheduleItem } from '@/types';
+import { ScheduleItem, CelebrityProfile } from '@/types';
+import { getSiteText } from '@/lib/siteTexts';
 import {
   Calendar,
   Search,
@@ -24,9 +25,11 @@ import { GeoCircle, GeoCross, GeoTriangle, GeoSquare, GeoArch, GeoBar } from '@/
 
 interface Props {
   initialSchedules: ScheduleItem[];
+  profile?: CelebrityProfile;
 }
 
-export default function ScheduleBoard({ initialSchedules }: Props) {
+export default function ScheduleBoard({ initialSchedules, profile }: Props) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
   const [schedules] = useState<ScheduleItem[]>(initialSchedules);
   const [selectedMonth, setSelectedMonth] = useState<'ALL' | 11 | 12>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -136,13 +139,13 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
         <div className="mb-8 text-center space-y-4">
           <div className="inline-flex items-center gap-2 neo-sticker bg-brand-yellow text-black -rotate-1 text-sm font-black">
             <Calendar className="w-4 h-4 text-brand-red" />
-            OFFICIAL TOUR & EVENT DATES
+            {t('schedule_header_tag')}
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-black tracking-tight uppercase font-cocogoose">
-            LỊCH CÔNG TÁC CHỦ TỊCH MAI
+            {t('schedule_section_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-2xl mx-auto">
-            Xem lịch biểu diễn, shooting và sự kiện tháng 11 & 12/2026. Bấm vào bất kỳ sự kiện nào trên bảng để xem chi tiết ở cột bên phải.
+            {t('schedule_section_desc')}
           </p>
 
           {/* Filter Bar */}
@@ -158,7 +161,7 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                       : 'bg-white hover:bg-gray-100 text-black'
                   }`}
                 >
-                  Tất Cả ({schedules.length})
+                  {t('schedule_tab_all')} ({schedules.length})
                 </button>
                 <button
                   onClick={() => setSelectedMonth(11)}
@@ -168,7 +171,7 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                       : 'bg-white hover:bg-amber-100 text-black'
                   }`}
                 >
-                  Tháng 11 ({schedules.filter((s) => s.month === 11).length})
+                  {t('schedule_tab_nov')} ({schedules.filter((s) => s.month === 11).length})
                 </button>
                 <button
                   onClick={() => setSelectedMonth(12)}
@@ -178,7 +181,7 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                       : 'bg-white hover:bg-emerald-100 text-black'
                   }`}
                 >
-                  Tháng 12 ({schedules.filter((s) => s.month === 12).length})
+                  {t('schedule_tab_dec')} ({schedules.filter((s) => s.month === 12).length})
                 </button>
               </div>
 
@@ -187,7 +190,7 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                 <input
                   type="text"
-                  placeholder="Tìm show, địa điểm, ngày..."
+                  placeholder={t('schedule_search_placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="neo-input pl-9 pr-3 py-1.5 text-xs sm:text-sm w-full"
@@ -251,11 +254,8 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                   {/* Sticker Title */}
                   <div className="neo-box-sm bg-[#1e2a38] text-white px-3.5 py-1.5 rotate-[-3deg] inline-block shadow-brutal border-3 border-black">
-                    <span className="block text-[11px] sm:text-xs font-black text-cyan-300 tracking-wider font-cocogoose">
-                      LỊCH CÔNG TÁC
-                    </span>
-                    <span className="block text-base sm:text-lg font-black text-amber-400 uppercase tracking-tight font-cocogoose">
-                      CHỦ TỊCH MAI
+                    <span className="block text-sm sm:text-base font-black text-amber-400 uppercase tracking-tight font-cocogoose">
+                      {t('schedule_paper_title')}
                     </span>
                   </div>
 
@@ -268,15 +268,9 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                   </div>
 
                   {/* Post-it Note */}
-                  <div className="bg-[#fff382] border-2 border-black p-2.5 rounded shadow-brutal rotate-[4deg] text-center w-28 sm:w-32">
-                    <span className="text-[10px] font-black uppercase text-gray-700 tracking-widest block font-cocogoose">
-                      THÁNG
-                    </span>
-                    <span className="text-lg sm:text-xl font-black text-brand-red block font-cocogoose">
-                      11 & 12
-                    </span>
-                    <span className="text-[11px] font-black text-emerald-700 block font-cocogoose">
-                      ★ 2026 ✔
+                  <div className="bg-[#fff382] border-2 border-black p-2.5 rounded shadow-brutal rotate-[4deg] text-center min-w-[110px]">
+                    <span className="text-xs sm:text-sm font-black text-brand-red block font-cocogoose">
+                      {t('schedule_postit_title')}
                     </span>
                   </div>
                 </div>
@@ -683,7 +677,7 @@ export default function ScheduleBoard({ initialSchedules }: Props) {
                 <div className="mt-5 p-3 bg-pink-50 rounded-lg border border-pink-300 text-[11px] font-semibold text-gray-700 flex items-start gap-2">
                   <Info className="w-4 h-4 text-brand-red shrink-0 mt-0.5" />
                   <p>
-                    Lịch trình chính thức được cập nhật cho gia đình <strong>Fandom Ô Mai</strong>. Mọi thông tin thay đổi sẽ được thông báo ngay tại đây và fanpage chính thức.
+                    {t('schedule_fandom_footer')}
                   </p>
                 </div>
 

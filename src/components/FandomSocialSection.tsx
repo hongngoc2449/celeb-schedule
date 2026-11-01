@@ -5,8 +5,10 @@ import { CelebrityProfile } from '@/types';
 import { Mail, Copy, Check, ExternalLink, Globe, Sparkles, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { OxadOmaiStampBadge, GeoCluster, GeoTriangle, GeoCross, GeoCircle } from '@/components/GeometricDecor';
+import { getSiteText } from '@/lib/siteTexts';
 
 export default function FandomSocialSection({ profile }: { profile: CelebrityProfile }) {
+  const t = (id: string) => getSiteText(profile?.siteTexts, id);
   const [copiedEmail, setCopiedEmail] = useState(false);
 
   const blog = profile.blogContact || {
@@ -36,15 +38,15 @@ export default function FandomSocialSection({ profile }: { profile: CelebrityPro
         <div className="text-center mb-10 space-y-3">
           <div className="inline-flex items-center gap-2">
             <span className="neo-sticker bg-brand-yellow text-black -rotate-1 text-xs sm:text-sm font-black">
-              🍬 OFFICIAL BLOG & SOCIALS
+              {t('contact_header_tag')}
             </span>
             <GeoCluster className="hidden sm:inline-flex" />
           </div>
           <h2 className="text-3xl sm:text-5xl font-black text-black uppercase font-cocogoose">
-            THÔNG TIN LIÊN HỆ BLOG
+            {t('contact_section_title')}
           </h2>
           <p className="text-gray-700 text-sm sm:text-base font-semibold max-w-xl mx-auto">
-            Kênh blog và các trang mạng xã hội chính thức của <strong>OwO_Offset with OSAD</strong> dành cho gia đình Fandom Ô Mai.
+            {t('contact_section_desc')}
           </p>
         </div>
 
@@ -66,19 +68,19 @@ export default function FandomSocialSection({ profile }: { profile: CelebrityPro
 
               <div>
                 <span className="neo-sticker bg-brand-red text-white text-[10px] font-black uppercase">
-                  BLOG CHÍNH THỨC
+                  {t('contact_blog_tag')}
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-black font-cocogoose mt-2">
-                  {blog.blogName}
+                  {blog.blogName || t('contact_blog_name')}
                 </h3>
                 <p className="text-xs font-bold text-gray-600 mt-1">
-                  Đồng hành cùng OSAD (Chủ Tịch Mai) & Fandom Ô Mai
+                  {t('contact_blog_desc')}
                 </p>
               </div>
 
               <div className="w-full pt-2 flex flex-col items-center gap-2.5">
                 <span className="inline-block text-[11px] font-black bg-pink-100 text-pink-900 border border-black px-3 py-1 rounded-full">
-                  🍬 Tên Fandom: Ô Mai
+                  {t('contact_fandom_tag')}
                 </span>
                 <OxadOmaiStampBadge className="scale-90" />
               </div>

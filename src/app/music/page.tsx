@@ -1,7 +1,7 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MusicPlayerPage from '@/components/MusicPlayerPage';
-import { getSongs } from '@/lib/db';
+import { getSongs, getProfile } from '@/lib/db';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -13,15 +13,15 @@ export const metadata: Metadata = {
 };
 
 export default async function MusicPage() {
-  const songs = await getSongs();
+  const [songs, profile] = await Promise.all([getSongs(), getProfile()]);
 
   return (
     <>
-      <Navbar />
+      <Navbar profile={profile} />
       <main className="flex-1">
-        <MusicPlayerPage songs={songs} />
+        <MusicPlayerPage songs={songs} profile={profile} />
       </main>
-      <Footer />
+      <Footer profile={profile} />
     </>
   );
 }

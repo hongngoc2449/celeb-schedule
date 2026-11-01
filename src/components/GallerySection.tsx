@@ -137,10 +137,10 @@ export default function GallerySection({
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="neo-btn bg-brand-yellow text-black text-xs px-3.5 py-1.5 gap-1.5 shadow-brutal-sm font-black scale-95 group-hover:scale-100 transition-transform">
-                    <Maximize2 className="w-4 h-4 text-brand-red" />
-                    <span>Nhấp để phóng to</span>
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="neo-btn bg-white text-black text-xs px-3 py-1.5 gap-1.5 shadow-brutal-sm font-black">
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span>Phóng to</span>
                   </span>
                 </div>
               </div>
@@ -317,13 +317,6 @@ export default function GallerySection({
                   alt={activeImage.title}
                   className="max-h-[70vh] sm:max-h-[74vh] max-w-[90vw] object-contain rounded-xl border-3 border-black shadow-brutal-xl bg-black"
                 />
-
-                {/* Subtle Click Tip Badge when 100% */}
-                {zoomScale === 1 && (
-                  <div className="absolute bottom-3 bg-black/75 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[11px] font-bold border border-white/20 pointer-events-none opacity-90">
-                    🔍 Nhấp vào ảnh hoặc dùng nút + / - để phóng to
-                  </div>
-                )}
               </div>
             </div>
 

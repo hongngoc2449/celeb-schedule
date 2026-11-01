@@ -275,17 +275,6 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                   </div>
                 </div>
 
-                {/* Interactive Click Tip Banner */}
-                <div className="mb-5 p-2 bg-amber-50 border-2 border-dashed border-amber-300 rounded-lg flex items-center justify-between text-xs font-bold text-amber-900">
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    Bấm vào từng dòng để mở xem chi tiết ở bảng bên phải 👉
-                  </span>
-                  <span className="text-[10px] bg-amber-200 px-1.5 py-0.5 rounded font-black">
-                    {filteredSchedules.length} sự kiện
-                  </span>
-                </div>
-
                 {/* LIST OF EVENTS */}
                 <div className="space-y-6">
                   {/* NOVEMBER */}
@@ -295,7 +284,6 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                         <span className="neo-sticker bg-brand-yellow text-black text-xs font-black">
                           THÁNG 11
                         </span>
-                        <span className="text-xs font-bold text-gray-500">Màu cam - đỏ rực</span>
                       </div>
 
                       {novEvents.length === 0 ? (
@@ -375,7 +363,6 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                         <span className="neo-sticker bg-brand-green text-white text-xs font-black">
                           THÁNG 12
                         </span>
-                        <span className="text-xs font-bold text-gray-500">Màu xanh lá tươi sáng</span>
                       </div>
 
                       {decEvents.length === 0 ? (
@@ -687,7 +674,7 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                 <Info className="w-8 h-8 text-gray-400 mx-auto" />
                 <h4 className="font-black text-base text-black font-cocogoose">CHƯA CHỌN SỰ KIỆN</h4>
                 <p className="text-xs text-gray-500 font-bold">
-                  Bấm vào một dòng lịch trình bên trái để hiển thị toàn bộ thông tin chi tiết tại đây.
+                  Vui lòng chọn sự kiện để xem chi tiết.
                 </p>
               </div>
             )}

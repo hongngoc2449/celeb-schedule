@@ -136,9 +136,9 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
   {
     id: 'schedule_section_desc',
     section: 'Lịch Trình',
-    location: 'Mô tả hướng dẫn xem lịch',
+    location: 'Mô tả mục Lịch Trình',
     defaultValue:
-      'Xem lịch biểu diễn, shooting và sự kiện tháng 11 & 12/2026. Bấm vào bất kỳ sự kiện nào trên bảng để xem chi tiết ở cột bên phải.',
+      'Lịch trình biểu diễn, shooting và sự kiện chính thức tháng 11 & 12/2026 của Chủ Tịch Mai.',
   },
   {
     id: 'schedule_tab_all',
@@ -334,12 +334,6 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     section: 'Tiểu Sử & Bio',
     location: 'Tiêu đề khối Mạng xã hội',
     defaultValue: 'MẠNG XÃ HỘI CHỦ TỊCH MAI',
-  },
-  {
-    id: 'about_social_desc',
-    section: 'Tiểu Sử & Bio',
-    location: 'Ghi chú phụ khối Mạng xã hội',
-    defaultValue: 'Nhấn vào icon để kết nối trực tiếp',
   },
 
   // 6. Thư Viện Ảnh (Gallery)

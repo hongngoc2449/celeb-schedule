@@ -190,18 +190,13 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
               {/* Official Social Media Channels Grid */}
               <div className="pt-2">
                 <div className="p-4 bg-white border-2 border-black rounded-xl shadow-brutal-sm space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-gray-200 pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="neo-sticker bg-brand-yellow text-black text-[10px] font-black">
-                        OFFICIAL SOCIALS
-                      </span>
-                      <h4 className="font-black text-sm text-black font-cocogoose">
-                        {t('about_social_title')}
-                      </h4>
-                    </div>
-                    <span className="text-[11px] font-bold text-gray-500">
-                      {t('about_social_desc')}
+                  <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
+                    <span className="neo-sticker bg-brand-yellow text-black text-[10px] font-black">
+                      OFFICIAL SOCIALS
                     </span>
+                    <h4 className="font-black text-sm text-black font-cocogoose">
+                      {t('about_social_title')}
+                    </h4>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">

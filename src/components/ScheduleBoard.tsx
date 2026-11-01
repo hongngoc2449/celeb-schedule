@@ -34,7 +34,6 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
   const [selectedMonth, setSelectedMonth] = useState<'ALL' | 11 | 12>('ALL');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showOriginalPoster, setShowOriginalPoster] = useState(false);
 
   // Selected event for Right-side Detail Panel (default to first event)
   const [activeEvent, setActiveEvent] = useState<ScheduleItem>(initialSchedules[2] || initialSchedules[0]);
@@ -196,32 +195,9 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                   className="neo-input pl-9 pr-3 py-1.5 text-xs sm:text-sm w-full"
                 />
               </div>
-
-              {/* Toggle Poster Button */}
-              <button
-                onClick={() => setShowOriginalPoster(!showOriginalPoster)}
-                className="neo-btn bg-brand-purple hover:bg-purple-300 text-black text-xs px-3 py-1.5 whitespace-nowrap"
-              >
-                {showOriginalPoster ? '📝 Thu nhỏ poster' : '🖼️ So sánh với ảnh gốc'}
-              </button>
             </div>
           </div>
         </div>
-
-        {/* ORIGINAL POSTER POPUP / OVERLAY */}
-        {showOriginalPoster && (
-          <div className="neo-box p-4 bg-white mb-8 border-3 border-black text-center animate-fadeIn max-w-4xl mx-auto">
-            <h4 className="font-black text-lg text-black mb-2 font-cocogoose">ẢNH GỐC LỊCH CÔNG TÁC CHỦ TỊCH MAI</h4>
-            <div className="relative max-w-md mx-auto aspect-[3/4] border-2 border-black rounded-lg overflow-hidden shadow-brutal">
-              <Image
-                src="/images/schedule-board.jpg"
-                alt="Bản gốc Lịch Công Tác Chủ Tịch Mai"
-                fill
-                className="object-contain bg-black/90"
-              />
-            </div>
-          </div>
-        )}
 
         {/* ============================================================== */}
         {/* EXPANDED 2-COLUMN LAYOUT: CLIPBOARD (LEFT) + DETAIL PANEL (RIGHT) */}

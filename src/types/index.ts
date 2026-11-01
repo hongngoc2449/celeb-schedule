@@ -86,3 +86,13 @@ export interface SongItem {
   youtubeUrl: string;
   youtubeId: string;
 }
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  password?: string;
+  name: string;
+  role: 'admin' | 'editor';
+  createdAt: string;
+  updatedAt?: string;
+}

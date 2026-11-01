@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Calendar, Music, Image as ImageIcon, User, LogOut, ExternalLink } from 'lucide-react';
+import { Calendar, Music, Image as ImageIcon, User, LogOut, ExternalLink, KeyRound } from 'lucide-react';
 
 export default function AdminNavClient() {
   const pathname = usePathname();
@@ -23,6 +23,7 @@ export default function AdminNavClient() {
     { href: '/admin/songs', label: 'Kho Âm Nhạc', icon: Music },
     { href: '/admin/gallery', label: 'Thư Viện Ảnh', icon: ImageIcon },
     { href: '/admin/profile', label: 'Cập Nhật Profile', icon: User },
+    { href: '/admin/accounts', label: 'Tài Khoản & Mật Khẩu', icon: KeyRound },
   ];
 
   return (

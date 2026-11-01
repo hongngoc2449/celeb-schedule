@@ -5,15 +5,21 @@ export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();
 
-    if (!verifyCredentials(username, password)) {
+    const verification = await verifyCredentials(username, password);
+
+    if (!verification.success) {
       return NextResponse.json(
         { error: 'Tên đăng nhập hoặc mật khẩu không chính xác' },
         { status: 401 }
       );
     }
 
-    const token = signAdminToken();
-    const response = NextResponse.json({ success: true, message: 'Đăng nhập thành công' });
+    const token = signAdminToken(verification.user);
+    const response = NextResponse.json({
+      success: true,
+      message: 'Đăng nhập thành công',
+      user: verification.user,
+    });
 
     response.cookies.set('admin_token', token, {
       httpOnly: true,
@@ -28,4 +34,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Lỗi xử lý đăng nhập' }, { status: 500 });
   }
 }
-

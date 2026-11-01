@@ -7,8 +7,8 @@ import { Shield, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('osad2026');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -116,13 +116,6 @@ export default function AdminLoginPage() {
               </button>
             </div>
           </form>
-
-          {/* Dev credentials tip */}
-          <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-300 text-center">
-            <p className="text-[11px] font-bold text-gray-500">
-              Mặc định dev: <code className="bg-gray-100 px-1 py-0.5 rounded border border-gray-300 font-mono text-black">admin</code> / <code className="bg-gray-100 px-1 py-0.5 rounded border border-gray-300 font-mono text-black">osad2026</code>
-            </p>
-          </div>
         </div>
 
         {/* Back Link */}

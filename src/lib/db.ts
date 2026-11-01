@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 import { initialProfile, initialSchedules, initialGallery } from './initialData';
-import { ScheduleItem, CelebrityProfile, GalleryItem, SongItem } from '@/types';
+import { ScheduleItem, CelebrityProfile, GalleryItem, SongItem, AdminUser } from '@/types';
 import initialSongsData from './musicData.json';
 import fs from 'fs';
 import path from 'path';
@@ -19,6 +19,18 @@ interface LocalStore {
   profile: CelebrityProfile;
   gallery: GalleryItem[];
   songs?: SongItem[];
+  users?: AdminUser[];
+}
+
+function getDefaultAdminUser(): AdminUser {
+  return {
+    id: 'usr-primary-admin',
+    username: process.env.ADMIN_USERNAME || 'admin',
+    password: process.env.ADMIN_PASSWORD || 'lena2202',
+    name: 'Chủ Tịch Mai (Admin)',
+    role: 'admin',
+    createdAt: '2026-11-01T00:00:00.000Z',
+  };
 }
 
 function getLocalStore(): LocalStore {
@@ -29,6 +41,9 @@ function getLocalStore(): LocalStore {
         const parsed = JSON.parse(content);
         if (!parsed.songs || parsed.songs.length === 0) {
           parsed.songs = initialSongsData as SongItem[];
+        }
+        if (!parsed.users || parsed.users.length === 0) {
+          parsed.users = [getDefaultAdminUser()];
         }
         return parsed;
       }
@@ -41,6 +56,7 @@ function getLocalStore(): LocalStore {
     profile: initialProfile,
     gallery: initialGallery,
     songs: initialSongsData as SongItem[],
+    users: [getDefaultAdminUser()],
   };
 }
 
@@ -298,4 +314,170 @@ export async function deleteSong(id: string): Promise<boolean> {
   store.songs = store.songs.filter((s) => s.id !== id);
   saveLocalStore(store);
   return store.songs.length < beforeLen;
+}
+
+// ----------------- ADMIN USERS & ACCOUNTS -----------------
+
+export async function getAdminUsers(): Promise<Omit<AdminUser, 'password'>[]> {
+  const { db } = await connectToDatabase();
+  const defaultAdmin = getDefaultAdminUser();
+
+  if (db) {
+    const users = await db.collection<AdminUser>('admin_users').find({}).toArray();
+    if (users.length === 0) {
+      await db.collection('admin_users').insertOne({ ...defaultAdmin });
+      const { password, _id, ...safe } = defaultAdmin as any;
+      return [safe];
+    }
+    return users.map(({ password, _id, ...rest }: any) => ({
+      ...rest,
+      id: rest.id || _id.toString(),
+    }));
+  }
+
+  const store = getLocalStore();
+  if (!store.users || store.users.length === 0) {
+    store.users = [defaultAdmin];
+    saveLocalStore(store);
+  }
+  return store.users.map(({ password, ...rest }) => rest);
+}
+
+export async function getAdminUserByUsername(username: string): Promise<AdminUser | null> {
+  const { db } = await connectToDatabase();
+  const defaultAdmin = getDefaultAdminUser();
+
+  if (db) {
+    const user = await db.collection<AdminUser>('admin_users').findOne({ username });
+    if (user) {
+      const { _id, ...rest } = user as any;
+      return { ...rest, id: rest.id || _id.toString() };
+    }
+    // If database is empty or user is default admin from env, auto-seed default admin
+    if (username === defaultAdmin.username) {
+      await db.collection('admin_users').insertOne({ ...defaultAdmin });
+      return defaultAdmin;
+    }
+    return null;
+  }
+
+  const store = getLocalStore();
+  if (!store.users) store.users = [defaultAdmin];
+  const found = store.users.find((u) => u.username === username);
+  if (found) return found;
+  if (username === defaultAdmin.username) return defaultAdmin;
+  return null;
+}
+
+export async function createAdminUser(data: {
+  username: string;
+  password: string;
+  name: string;
+  role: 'admin' | 'editor';
+}): Promise<{ success: boolean; user?: Omit<AdminUser, 'password'>; error?: string }> {
+  const existing = await getAdminUserByUsername(data.username);
+  if (existing) {
+    return { success: false, error: 'Tên đăng nhập này đã tồn tại trong hệ thống' };
+  }
+
+  const newUser: AdminUser = {
+    id: 'usr-' + Date.now(),
+    username: data.username.trim().toLowerCase(),
+    password: data.password,
+    name: data.name || data.username,
+    role: data.role || 'admin',
+    createdAt: new Date().toISOString(),
+  };
+
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('admin_users').insertOne({ ...newUser });
+  } else {
+    const store = getLocalStore();
+    if (!store.users) store.users = [getDefaultAdminUser()];
+    store.users.push(newUser);
+    saveLocalStore(store);
+  }
+
+  const { password, ...safe } = newUser;
+  return { success: true, user: safe };
+}
+
+export async function updateUserPassword(
+  username: string,
+  newPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  const { db } = await connectToDatabase();
+  const defaultAdmin = getDefaultAdminUser();
+
+  if (db) {
+    const existing = await db.collection<AdminUser>('admin_users').findOne({ username });
+    if (!existing) {
+      if (username === defaultAdmin.username) {
+        await db.collection('admin_users').insertOne({
+          ...defaultAdmin,
+          password: newPassword,
+          updatedAt: new Date().toISOString(),
+        });
+        return { success: true };
+      }
+      return { success: false, error: 'Không tìm thấy tài khoản người dùng' };
+    }
+
+    await db.collection('admin_users').updateOne(
+      { username },
+      { $set: { password: newPassword, updatedAt: new Date().toISOString() } }
+    );
+    return { success: true };
+  }
+
+  const store = getLocalStore();
+  if (!store.users) store.users = [defaultAdmin];
+  const idx = store.users.findIndex((u) => u.username === username);
+  if (idx !== -1) {
+    store.users[idx].password = newPassword;
+    store.users[idx].updatedAt = new Date().toISOString();
+    saveLocalStore(store);
+    return { success: true };
+  } else if (username === defaultAdmin.username) {
+    store.users.push({
+      ...defaultAdmin,
+      password: newPassword,
+      updatedAt: new Date().toISOString(),
+    });
+    saveLocalStore(store);
+    return { success: true };
+  }
+
+  return { success: false, error: 'Không tìm thấy tài khoản' };
+}
+
+export async function deleteAdminUser(id: string): Promise<{ success: boolean; error?: string }> {
+  const { db } = await connectToDatabase();
+  const defaultAdmin = getDefaultAdminUser();
+
+  if (db) {
+    const user = await db.collection<AdminUser>('admin_users').findOne({
+      $or: [{ id }, { _id: id as any }],
+    });
+    if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
+    if (user.username === defaultAdmin.username || user.username === 'admin') {
+      return { success: false, error: 'Không thể xóa tài khoản Quản trị viên chính' };
+    }
+    await db.collection('admin_users').deleteOne({
+      $or: [{ id }, { _id: id as any }],
+    });
+    return { success: true };
+  }
+
+  const store = getLocalStore();
+  if (!store.users) return { success: false, error: 'Không tìm thấy danh sách tài khoản' };
+  const user = store.users.find((u) => u.id === id);
+  if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
+  if (user.username === defaultAdmin.username || user.username === 'admin') {
+    return { success: false, error: 'Không thể xóa tài khoản Quản trị viên chính' };
+  }
+  store.users = store.users.filter((u) => u.id !== id);
+  saveLocalStore(store);
+  return { success: true };
 }

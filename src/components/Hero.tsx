@@ -149,16 +149,16 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
               </div>
 
               {/* Bottom Badge inside photo */}
-              <div className="p-3 bg-white border-t-2 border-black flex items-center justify-between">
+              <div className="pt-2.5 px-4 pb-4 bg-white border-t-2 border-black flex items-center justify-between">
                 <div>
-                  <h4 className="font-black text-base text-black font-cocogoose">
+                  <h4 className="font-black text-base text-black font-cocogoose leading-tight">
                     {t('hero_photo_badge_title')}
                   </h4>
-                  <p className="text-[11px] font-bold text-gray-600">
+                  <p className="text-[11px] font-bold text-gray-600 mt-0.5">
                     {heroSubBadge}
                   </p>
                 </div>
-                <div className="w-10 h-10 relative">
+                <div className="w-10 h-10 relative shrink-0">
                   <Image
                     src="/images/logo 3.png"
                     alt="OSAD mascot"
@@ -175,7 +175,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             </div>
 
             {/* Floating Tag Bottom-Left */}
-            <div className="absolute -bottom-4 -left-4 neo-sticker bg-brand-red text-white rotate-6 text-xs sm:text-sm z-20">
+            <div className="absolute -bottom-7 -left-3 neo-sticker bg-brand-red text-white -rotate-3 text-xs sm:text-sm z-20 shadow-brutal-sm">
               {heroSticker}
             </div>
           </div>

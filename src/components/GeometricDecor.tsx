@@ -46,14 +46,14 @@ export function GeoSquare({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#
   );
 }
 
-export function GeoM({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
+export function GeoM({ className = 'w-6 h-6', strokeWidth = 3.6, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
-        d="M4.5 19.5V8.5C4.5 6 6.2 4.5 8.2 4.5C10.5 4.5 12 7 12 13C12 7 13.5 4.5 15.8 4.5C17.8 4.5 19.5 6 19.5 8.5V19.5"
+        d="M4.5 19.5V5H19.5V19.5M12 5V19.5"
         stroke={color}
         strokeWidth={strokeWidth}
-        strokeLinecap="round"
+        strokeLinecap="butt"
         strokeLinejoin="round"
       />
     </svg>
@@ -88,16 +88,26 @@ export function GeoBar({ className = 'w-6 h-6', strokeWidth = 4, color = '#DC262
  * The iconic yellow OSAD - OMAI geometric stamp badge
  * reproducing the exact emblem from the celebrity merchandise patch
  */
-export function OsadOmaiStampBadge({ className = '' }: { className?: string }) {
+export function OsadOmaiStampBadge({
+  className = '',
+  useX = false,
+}: {
+  className?: string;
+  useX?: boolean;
+}) {
   return (
     <div
       className={`inline-flex flex-col items-center justify-center bg-brand-yellow px-3 py-2 rounded-2xl border-3 border-black shadow-brutal select-none ${className}`}
-      title="OSAD OMAI Emblem"
+      title={useX ? 'OXAD OMAI Emblem' : 'OSAD OMAI Emblem'}
     >
-      {/* Row 1: O S A D (Circle, S, Triangle, Square) */}
+      {/* Row 1: O S/X A D */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         <GeoCircle className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#DC2626" />
-        <GeoS className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#2563EB" />
+        {useX ? (
+          <GeoCross className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#2563EB" />
+        ) : (
+          <GeoS className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#2563EB" />
+        )}
         <GeoTriangle className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#16A34A" />
         <GeoSquare className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#D97706" />
       </div>

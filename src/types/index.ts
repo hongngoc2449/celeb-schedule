@@ -95,6 +95,22 @@ export interface SongItem {
   youtubeId: string;
 }
 
+export type ShowCategory = 'YOUTUBE' | 'ARTICLE' | 'SEARCH';
+
+export interface ShowItem {
+  id: string;
+  stt: number;
+  date: string;
+  title: string;
+  link: string;
+  category: ShowCategory;
+  youtubeId?: string | null;
+  youtubeUrl?: string | null;
+  searchQuery?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AdminUser {
   id: string;
   username: string;

@@ -1,7 +1,8 @@
 import { MongoClient, Db } from 'mongodb';
 import { initialProfile, initialSchedules, initialGallery } from './initialData';
-import { ScheduleItem, CelebrityProfile, GalleryItem, SongItem, AdminUser } from '@/types';
+import { ScheduleItem, CelebrityProfile, GalleryItem, SongItem, ShowItem, AdminUser } from '@/types';
 import initialSongsData from './musicData.json';
+import { initialShowsData } from './initialShows';
 import fs from 'fs';
 import path from 'path';
 
@@ -19,6 +20,7 @@ interface LocalStore {
   profile: CelebrityProfile;
   gallery: GalleryItem[];
   songs?: SongItem[];
+  shows?: ShowItem[];
   users?: AdminUser[];
 }
 
@@ -42,6 +44,9 @@ function getLocalStore(): LocalStore {
         if (!parsed.songs || parsed.songs.length === 0) {
           parsed.songs = initialSongsData as SongItem[];
         }
+        if (!parsed.shows || parsed.shows.length === 0) {
+          parsed.shows = initialShowsData as ShowItem[];
+        }
         if (!parsed.users || parsed.users.length === 0) {
           parsed.users = [getDefaultAdminUser()];
         }
@@ -56,6 +61,7 @@ function getLocalStore(): LocalStore {
     profile: initialProfile,
     gallery: initialGallery,
     songs: initialSongsData as SongItem[],
+    shows: initialShowsData as ShowItem[],
     users: [getDefaultAdminUser()],
   };
 }
@@ -314,6 +320,86 @@ export async function deleteSong(id: string): Promise<boolean> {
   store.songs = store.songs.filter((s) => s.id !== id);
   saveLocalStore(store);
   return store.songs.length < beforeLen;
+}
+
+// ----------------- SHOWS & TALKSHOWS -----------------
+
+export async function getShows(): Promise<ShowItem[]> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const items = await db.collection<ShowItem>('shows').find({}).sort({ stt: 1 }).toArray();
+    if (items.length > 0) {
+      return items.map(({ _id, ...rest }: any) => ({
+        ...rest,
+        id: rest.id || _id.toString(),
+      }));
+    } else {
+      await db.collection('shows').insertMany(initialShowsData as any);
+      return initialShowsData;
+    }
+  }
+  return getLocalStore().shows || initialShowsData;
+}
+
+export async function addShow(item: Omit<ShowItem, 'id' | 'stt'> & { stt?: number }): Promise<ShowItem> {
+  const shows = await getShows();
+  const nextStt = item.stt || shows.length + 1;
+  const newShow: ShowItem = {
+    id: 'show-' + Date.now(),
+    stt: nextStt,
+    date: item.date?.trim() || new Date().toLocaleDateString('vi-VN'),
+    title: item.title.trim(),
+    link: item.link?.trim() || '',
+    category: item.category || (item.youtubeId ? 'YOUTUBE' : item.link?.startsWith('http') ? 'ARTICLE' : 'SEARCH'),
+    youtubeId: item.youtubeId || null,
+    youtubeUrl: item.youtubeUrl || null,
+    searchQuery: item.searchQuery || null,
+    createdAt: new Date().toISOString(),
+  };
+
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('shows').insertOne(newShow as any);
+    return newShow;
+  }
+
+  const store = getLocalStore();
+  if (!store.shows) store.shows = [...initialShowsData];
+  store.shows.push(newShow);
+  saveLocalStore(store);
+  return newShow;
+}
+
+export async function updateShow(id: string, updates: Partial<ShowItem>): Promise<ShowItem | null> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('shows').updateOne({ id }, { $set: { ...updates, updatedAt: new Date().toISOString() } });
+    const updated = await db.collection<ShowItem>('shows').findOne({ id });
+    return updated as any;
+  }
+
+  const store = getLocalStore();
+  if (!store.shows) store.shows = [...initialShowsData];
+  const idx = store.shows.findIndex((s) => s.id === id);
+  if (idx === -1) return null;
+  store.shows[idx] = { ...store.shows[idx], ...updates, updatedAt: new Date().toISOString() };
+  saveLocalStore(store);
+  return store.shows[idx];
+}
+
+export async function deleteShow(id: string): Promise<boolean> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const res = await db.collection('shows').deleteOne({ id });
+    return res.deletedCount > 0;
+  }
+
+  const store = getLocalStore();
+  if (!store.shows) return false;
+  const beforeLen = store.shows.length;
+  store.shows = store.shows.filter((s) => s.id !== id);
+  saveLocalStore(store);
+  return store.shows.length < beforeLen;
 }
 
 // ----------------- ADMIN USERS & ACCOUNTS -----------------

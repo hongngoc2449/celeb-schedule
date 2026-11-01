@@ -29,8 +29,8 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
   {
     id: 'header_nav_music',
     section: 'Header & Logo',
-    location: 'Nút Menu: Âm Nhạc',
-    defaultValue: 'Âm Nhạc (96+ Hit)',
+    location: 'Nút Menu: Âm Nhạc & Show',
+    defaultValue: 'Âm Nhạc & Show',
   },
   {
     id: 'header_nav_about',
@@ -214,14 +214,14 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'discography_banner_title',
     section: 'Kho Âm Nhạc',
     location: 'Tiêu đề banner vàng mời nghe nhạc',
-    defaultValue: '96+ BÀI HÁT, COLLAB & SÂN KHẤU CỦA OSAD',
+    defaultValue: '96+ BÀI HÁT & 66+ SHOW/TALKSHOW CỦA OSAD',
   },
   {
     id: 'discography_banner_desc',
     section: 'Kho Âm Nhạc',
     location: 'Mô tả banner vàng mời nghe nhạc',
     defaultValue:
-      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, tìm kiếm theo tên hoặc nghệ sĩ đồng hành.',
+      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, cùng toàn bộ danh sách 66+ show, talkshow và phỏng vấn chính thức.',
   },
   {
     id: 'discography_banner_btn',

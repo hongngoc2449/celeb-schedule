@@ -20,7 +20,7 @@ export default function AdminNavClient() {
 
   const navItems = [
     { href: '/admin', label: 'Lịch Trình', icon: Calendar },
-    { href: '/admin/songs', label: 'Kho Âm Nhạc', icon: Music },
+    { href: '/admin/songs', label: 'Âm Nhạc & Show', icon: Music },
     { href: '/admin/gallery', label: 'Thư Viện Ảnh', icon: ImageIcon },
     { href: '/admin/profile', label: 'Cập Nhật Profile', icon: User },
     { href: '/admin/accounts', label: 'Tài Khoản & Mật Khẩu', icon: KeyRound },

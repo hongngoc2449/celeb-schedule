@@ -1,6 +1,6 @@
 import { checkAdminAuth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import { getSongs } from '@/lib/db';
+import { getSongs, getShows } from '@/lib/db';
 import SongsManagerClient from '@/components/admin/SongsManagerClient';
 
 export const dynamic = 'force-dynamic';
@@ -11,8 +11,8 @@ export default async function AdminSongsPage() {
     redirect('/admin/login');
   }
 
-  const songs = await getSongs();
+  const [songs, shows] = await Promise.all([getSongs(), getShows()]);
 
-  return <SongsManagerClient initialSongs={songs} />;
+  return <SongsManagerClient initialSongs={songs} initialShows={shows} />;
 }
 

@@ -47,68 +47,76 @@ body {
   overflow-x: hidden;
 }
 
-/* Neo-Brutalism Custom Utilities */
-.neo-box {
-  background-color: #ffffff;
-  border: 3px solid #141414;
-  box-shadow: 5px 5px 0px 0px #141414;
-  border-radius: 14px;
-}
+/* Neo-Brutalism Custom Components */
+@layer components {
+  .neo-box {
+    background-color: #ffffff;
+    border: 3px solid #141414;
+    box-shadow: 5px 5px 0px 0px #141414;
+    border-radius: 14px;
+  }
 
-.neo-box-sm {
-  background-color: #ffffff;
-  border: 2px solid #141414;
-  box-shadow: 3px 3px 0px 0px #141414;
-  border-radius: 10px;
-}
+  .neo-box-sm {
+    background-color: #ffffff;
+    border: 2px solid #141414;
+    box-shadow: 3px 3px 0px 0px #141414;
+    border-radius: 10px;
+  }
 
-.neo-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  border: 2.5px solid #141414;
-  box-shadow: 4px 4px 0px 0px #141414;
-  border-radius: 10px;
-  transition: all 0.15s ease-in-out;
-  cursor: pointer;
-  user-select: none;
-}
+  .neo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    border: 2.5px solid #141414;
+    box-shadow: 4px 4px 0px 0px #141414;
+    border-radius: 10px;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    user-select: none;
+  }
 
-.neo-btn:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #141414;
-}
+  .neo-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px #141414;
+  }
 
-.neo-btn:active {
-  transform: translate(4px, 4px);
-  box-shadow: 0px 0px 0px 0px #141414;
-}
+  .neo-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px #141414;
+  }
 
-.neo-sticker {
-  display: inline-block;
-  font-weight: 800;
-  text-transform: uppercase;
-  padding: 0.25rem 0.75rem;
-  border: 2px solid #141414;
-  box-shadow: 2.5px 2.5px 0px 0px #141414;
-  border-radius: 6px;
-}
+  .neo-sticker {
+    display: inline-block;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border: 2px solid #141414;
+    box-shadow: 2.5px 2.5px 0px 0px #141414;
+    border-radius: 6px;
+  }
 
-.neo-input {
-  border: 2.5px solid #141414;
-  box-shadow: 3px 3px 0px 0px #141414;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-weight: 700;
-  outline: none;
-  background-color: #fff;
-  transition: all 0.15s ease;
-}
+  .neo-input {
+    border: 2.5px solid #141414;
+    box-shadow: 3px 3px 0px 0px #141414;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    outline: none;
+    background-color: #fff;
+    transition: all 0.15s ease;
+  }
 
-.neo-input:focus {
-  box-shadow: 5px 5px 0px 0px #238be6;
-  border-color: #141414;
+  .neo-input:focus {
+    box-shadow: 5px 5px 0px 0px #238be6;
+    border-color: #141414;
+  }
+
+  /* Ensure inputs with search icon have proper padding for placeholder */
+  .neo-input.pl-9,
+  .neo-input.pl-10 {
+    padding-left: 2.5rem !important;
+  }
 }
 
 /* Clipboard Paper Styling */

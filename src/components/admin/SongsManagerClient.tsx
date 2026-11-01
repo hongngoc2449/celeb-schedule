@@ -352,13 +352,13 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
               </h3>
 
               <div className="relative w-full sm:w-72">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Tìm bài hát, nghệ sĩ..."
                   value={searchSong}
                   onChange={(e) => setSearchSong(e.target.value)}
-                  className="neo-input pl-9 pr-3 py-1.5 text-xs w-full"
+                  className="neo-input pl-10 pr-3 py-1.5 text-xs w-full"
                 />
               </div>
             </div>
@@ -524,13 +524,13 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
               </h3>
 
               <div className="relative w-full sm:w-72">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Tìm show, tiêu đề..."
                   value={searchShow}
                   onChange={(e) => setSearchShow(e.target.value)}
-                  className="neo-input pl-9 pr-3 py-1.5 text-xs w-full"
+                  className="neo-input pl-10 pr-3 py-1.5 text-xs w-full"
                 />
               </div>
             </div>

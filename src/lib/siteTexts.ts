@@ -75,7 +75,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     section: 'Banner Hero',
     location: 'Đoạn văn giới thiệu dưới tiêu đề',
     defaultValue:
-      'Cổng thông tin & cập nhật lịch trình biểu diễn, concert, livestream và toàn bộ âm nhạc chính thức của Rapper / Ca sĩ OSAD (Mai Quang Nam) dành cho đại gia đình Ô Mai.',
+      'Cổng thông tin & cập nhật lịch trình biểu diễn, concert, livestream và toàn bộ âm nhạc chính thức của Rapper / Songwriter OSAD (Mai Quang Nam) dành cho đại gia đình Ô Mai.',
   },
   {
     id: 'hero_quote',
@@ -111,13 +111,13 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'hero_photo_badge_sub',
     section: 'Banner Hero',
     location: 'Dòng phụ dưới khung ảnh',
-    defaultValue: 'OSAD • SINGER & RAPPER • FANDOM Ô MAI',
+    defaultValue: 'OSAD • SONGWRITER & RAPPER • FANDOM Ô MAI',
   },
   {
     id: 'hero_photo_sticker',
     section: 'Banner Hero',
     location: 'Sticker đỏ đính góc ảnh',
-    defaultValue: '🍬 NHÀ Ô MAI CHÍNH THỨC',
+    defaultValue: 'Offset with OSAD',
   },
 
   // 3. Khu Vực Lịch Trình (Schedule)
@@ -208,7 +208,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'discography_banner_tag',
     section: 'Kho Âm Nhạc',
     location: 'Nhãn badge banner vàng mời nghe nhạc',
-    defaultValue: 'KHO ÂM NHẠC ĐẦY ĐỦ NHẤT',
+    defaultValue: 'KHO ÂM NHẠC & SHOW',
   },
   {
     id: 'discography_banner_title',
@@ -221,7 +221,7 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     section: 'Kho Âm Nhạc',
     location: 'Mô tả banner vàng mời nghe nhạc',
     defaultValue:
-      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, cùng toàn bộ danh sách 66+ show, talkshow và phỏng vấn chính thức.',
+      'Nghe trực tiếp từng bài hát với trình phát YouTube tích hợp, cùng danh sách 66+ show, talkshow và phỏng vấn chính thức (*sưu tập từ nhiều nguồn, khả năng chưa đầy đủ).',
   },
   {
     id: 'discography_banner_btn',
@@ -233,14 +233,14 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     id: 'music_page_title',
     section: 'Kho Âm Nhạc',
     location: 'Tiêu đề đầu trang riêng /music',
-    defaultValue: 'KHO ÂM NHẠC CỦA OSAD',
+    defaultValue: 'KHO ÂM NHẠC & SHOW CỦA OSAD',
   },
   {
     id: 'music_page_desc',
     section: 'Kho Âm Nhạc',
     location: 'Mô tả trang riêng /music',
     defaultValue:
-      'Tổng hợp đầy đủ bài hát, sản phẩm solo, collab và sân khấu của Chủ Tịch Mai (Mai Quang Nam) dành cho đại gia đình Fandom Ô Mai.',
+      'Tổng hợp bài hát, sản phẩm solo, collab và sân khấu của Chủ Tịch Mai (Mai Quang Nam) (*sưu tập từ nhiều nguồn, khả năng chưa đầy đủ).',
   },
 
   // 5. Tiểu Sử & Bio

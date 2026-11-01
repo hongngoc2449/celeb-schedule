@@ -5,7 +5,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'OSAD - Lịch Công Tác Chủ Tịch Mai | Official Website',
   description:
-    'Cổng thông tin & cập nhật lịch trình công tác, biểu diễn, concert và hoạt động chính thức của Rapper / Ca sĩ OSAD (Mai Đức Triều).',
+    'Cổng thông tin & cập nhật lịch trình công tác, biểu diễn, concert và hoạt động chính thức của Rapper / Songwriter OSAD (Mai Quang Nam).',
   icons: {
     icon: '/images/logo 3.png',
   },

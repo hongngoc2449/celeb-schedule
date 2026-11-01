@@ -1,6 +1,6 @@
 # OSAD - Lịch Công Tác Chủ Tịch Mai (Celebrity Platform)
 
-> Website chính thức cập nhật thông tin, hình ảnh và lịch trình công tác của ca sĩ/rapper **OSAD (Mai Đức Triều - "Chủ Tịch Mai")** với phong cách **Neo-brutalism / Playful Color Blocks**, font chữ **Cocogoose Pro** và trang Admin quản trị toàn diện.
+> Website chính thức cập nhật thông tin, hình ảnh và lịch trình công tác của Songwriter/rapper **OSAD (Mai Quang Nam - "Chủ Tịch Mai")** với phong cách **Neo-brutalism / Playful Color Blocks**, font chữ **Cocogoose Pro** và trang Admin quản trị toàn diện.
 
 ---
 

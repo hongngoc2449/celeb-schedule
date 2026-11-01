@@ -87,11 +87,11 @@ export default function ProfileManagerClient({ initialProfile }: { initialProfil
           Cập Nhật Thông Tin OwO &amp; Toàn Bộ Text Website
         </h1>
         <p className="text-xs sm:text-sm font-bold text-gray-600">
-          Chỉnh sửa thông tin ca sĩ, fandom, mạng xã hội và tùy biến trực tiếp tất cả câu chữ hiển thị trên website ở bảng Excel phía dưới.
+          Chỉnh sửa thông tin Songwriter, fandom, mạng xã hội và tùy biến trực tiếp tất cả câu chữ hiển thị trên website ở bảng Excel phía dưới.
         </p>
       </div>
 
-      {/* FORM 1: THÔNG TIN CA SĨ & PROFILE */}
+      {/* FORM 1: THÔNG TIN SONGWRITER & PROFILE */}
       <form onSubmit={handleSaveProfile} className="space-y-6">
         {/* Box 1: General Info */}
         <div className="neo-box p-6 bg-white space-y-4">
@@ -286,7 +286,7 @@ export default function ProfileManagerClient({ initialProfile }: { initialProfil
             className="neo-btn bg-brand-yellow hover:bg-yellow-400 text-black px-8 py-3 text-base font-black gap-2 shadow-brutal"
           >
             <Save className="w-5 h-5" />
-            <span>{saving ? 'Đang Lưu...' : 'Lưu Thông Tin Profile Ca Sĩ'}</span>
+            <span>{saving ? 'Đang Lưu...' : 'Lưu Thông Tin Profile Songwriter'}</span>
           </button>
         </div>
       </form>

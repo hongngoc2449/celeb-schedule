@@ -14,6 +14,19 @@ import { getSiteText } from '@/lib/siteTexts';
 export default function Hero({ profile }: { profile: CelebrityProfile }) {
   const t = (id: string) => getSiteText(profile?.siteTexts, id);
 
+  const heroDesc = (t('hero_description') || '').replace(/Ca sĩ/gi, 'Songwriter');
+  const heroSubBadge = (t('hero_photo_badge_sub') || '').replace(/SINGER/gi, 'SONGWRITER');
+  const rawSticker = t('hero_photo_sticker') || '';
+  const heroSticker = rawSticker.includes('NHÀ Ô MAI CHÍNH THỨC') ? 'Offset with OSAD' : (rawSticker || 'Offset with OSAD');
+
+  // Use the new BAZAAR portrait image, falling back gracefully
+  const avatarSrc =
+    profile?.avatarUrl &&
+    profile.avatarUrl !== '/images/avt-opt.png' &&
+    !profile.avatarUrl.includes('avt.png')
+      ? profile.avatarUrl
+      : '/images/hero-bazaar.jpg';
+
   return (
     <section className="relative overflow-hidden py-10 lg:py-16 px-4 sm:px-8 border-b-3 border-black bg-[#fef7ee]">
       {/* Playful Floating Geometric Background Shapes */}
@@ -65,7 +78,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             
             {/* Description */}
             <p className="mt-4 text-base sm:text-lg text-gray-800 font-semibold max-w-2xl lg:max-w-3xl leading-relaxed">
-              {t('hero_description')}
+              {heroDesc}
             </p>
           </div>
 
@@ -125,7 +138,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
             <div className="absolute inset-0 bg-white rounded-3xl border-3 border-black shadow-brutal overflow-hidden -rotate-2 flex flex-col">
               <div className="relative flex-1 bg-gradient-to-b from-amber-100 to-amber-200">
                 <Image
-                  src={profile?.avatarUrl || '/images/avt-opt.png'}
+                  src={avatarSrc}
                   alt="Chủ Tịch Mai OSAD"
                   fill
                   priority
@@ -140,7 +153,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
                     {t('hero_photo_badge_title')}
                   </h4>
                   <p className="text-[11px] font-bold text-gray-600">
-                    {t('hero_photo_badge_sub')}
+                    {heroSubBadge}
                   </p>
                 </div>
                 <div className="w-10 h-10 relative">
@@ -161,7 +174,7 @@ export default function Hero({ profile }: { profile: CelebrityProfile }) {
 
             {/* Floating Tag Bottom-Left */}
             <div className="absolute -bottom-4 -left-4 neo-sticker bg-brand-red text-white rotate-6 text-xs sm:text-sm z-20">
-              {t('hero_photo_sticker')}
+              {heroSticker}
             </div>
           </div>
         </div>

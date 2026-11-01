@@ -212,8 +212,11 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
             KHO ÂM NHẠC &amp; SHOW CỦA OSAD
           </h1>
           <p className="text-xs sm:text-sm font-bold text-gray-700 mt-1 max-w-2xl">
-            Tổng hợp đầy đủ <strong className="text-brand-red">{songs.length}</strong> bài hát và{' '}
-            <strong className="text-brand-blue">{shows.length}</strong> show, talkshow, phỏng vấn của Chủ Tịch Mai (Mai Quang Nam).
+            Tổng hợp <strong className="text-brand-red">{songs.length}</strong> bài hát và{' '}
+            <strong className="text-brand-blue">{shows.length}</strong> show, talkshow, phỏng vấn của Chủ Tịch Mai (Mai Quang Nam).{' '}
+            <span className="block text-[11px] text-gray-500 font-medium italic mt-0.5">
+              *sưu tập từ nhiều nguồn, khả năng chưa đầy đủ
+            </span>
           </p>
         </div>
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getGallery, addGalleryItem, deleteGalleryItem } from '@/lib/db';
+import { getGallery, addGalleryItem, updateGalleryItem, deleteGalleryItem } from '@/lib/db';
 import { checkAdminAuth } from '@/lib/auth';
 
 export async function GET() {
@@ -27,6 +27,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ item: newItem, success: true }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Lỗi thêm ảnh vào gallery' }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  const isAuth = await checkAdminAuth();
+  if (!isAuth) {
+    return NextResponse.json({ error: 'Không có quyền quản trị' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const { id, ...updates } = body;
+    if (!id) {
+      return NextResponse.json({ error: 'Thiếu ID ảnh' }, { status: 400 });
+    }
+
+    const updated = await updateGalleryItem(id, updates);
+    if (!updated) {
+      return NextResponse.json({ error: 'Không tìm thấy ảnh' }, { status: 404 });
+    }
+
+    return NextResponse.json({ item: updated, success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Lỗi cập nhật ảnh' }, { status: 500 });
   }
 }
 

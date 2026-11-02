@@ -136,17 +136,23 @@ export async function createSchedule(item: Omit<ScheduleItem, 'id'>): Promise<Sc
 }
 
 export async function updateSchedule(id: string, updates: Partial<ScheduleItem>): Promise<ScheduleItem | null> {
+  const { _id, id: _ignoreId, ...cleanUpdates } = updates as any;
   const { db } = await connectToDatabase();
   if (db) {
-    await db.collection('schedules').updateOne({ id }, { $set: { ...updates, updatedAt: new Date().toISOString() } });
+    await db.collection('schedules').updateOne(
+      { id },
+      { $set: { ...cleanUpdates, updatedAt: new Date().toISOString() } }
+    );
     const updated = await db.collection<ScheduleItem>('schedules').findOne({ id });
-    return updated as any;
+    if (!updated) return null;
+    const { _id: docId, ...rest } = updated as any;
+    return { ...rest, id: rest.id || docId.toString() };
   }
 
   const store = getLocalStore();
   const index = store.schedules.findIndex((s) => s.id === id);
   if (index === -1) return null;
-  store.schedules[index] = { ...store.schedules[index], ...updates, updatedAt: new Date().toISOString() };
+  store.schedules[index] = { ...store.schedules[index], ...cleanUpdates, updatedAt: new Date().toISOString() };
   saveLocalStore(store);
   return store.schedules[index];
 }
@@ -190,18 +196,19 @@ export async function getProfile(): Promise<CelebrityProfile> {
 }
 
 export async function updateProfile(updates: Partial<CelebrityProfile>): Promise<CelebrityProfile> {
+  const { _id, key: _ignoreKey, ...cleanUpdates } = updates as any;
   const { db } = await connectToDatabase();
   if (db) {
     await db.collection('profiles').updateOne(
       { key: 'main_profile' },
-      { $set: updates },
+      { $set: cleanUpdates },
       { upsert: true }
     );
     return getProfile();
   }
 
   const store = getLocalStore();
-  store.profile = { ...store.profile, ...updates };
+  store.profile = { ...store.profile, ...cleanUpdates };
   saveLocalStore(store);
   return store.profile;
 }
@@ -242,6 +249,28 @@ export async function addGalleryItem(item: Omit<GalleryItem, 'id'>): Promise<Gal
   store.gallery.unshift(newItem);
   saveLocalStore(store);
   return newItem;
+}
+
+export async function updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<GalleryItem | null> {
+  const { _id, id: _ignoreId, ...cleanUpdates } = updates as any;
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('gallery').updateOne(
+      { id },
+      { $set: { ...cleanUpdates, updatedAt: new Date().toISOString() } }
+    );
+    const updated = await db.collection<GalleryItem>('gallery').findOne({ id });
+    if (!updated) return null;
+    const { _id: docId, ...rest } = updated as any;
+    return { ...rest, id: rest.id || docId.toString() };
+  }
+
+  const store = getLocalStore();
+  const index = store.gallery.findIndex((g) => g.id === id);
+  if (index === -1) return null;
+  store.gallery[index] = { ...store.gallery[index], ...cleanUpdates, updatedAt: new Date().toISOString() };
+  saveLocalStore(store);
+  return store.gallery[index];
 }
 
 export async function deleteGalleryItem(id: string): Promise<boolean> {
@@ -413,6 +442,33 @@ export async function createSong(item: {
   return newSong;
 }
 
+export async function updateSong(id: string, updates: Partial<SongItem>): Promise<SongItem | null> {
+  const { _id, id: _ignoreId, ...cleanUpdates } = updates as any;
+  if (cleanUpdates.youtubeUrl !== undefined) {
+    cleanUpdates.youtubeId = extractYoutubeId(cleanUpdates.youtubeUrl || '');
+  }
+
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('songs').updateOne(
+      { id },
+      { $set: { ...cleanUpdates, updatedAt: new Date().toISOString() } }
+    );
+    const updated = await db.collection<SongItem>('songs').findOne({ id });
+    if (!updated) return null;
+    const { _id: docId, ...rest } = updated as any;
+    return { ...rest, id: rest.id || docId.toString() };
+  }
+
+  const store = getLocalStore();
+  if (!store.songs) store.songs = [...(initialSongsData as SongItem[])];
+  const idx = store.songs.findIndex((s) => s.id === id);
+  if (idx === -1) return null;
+  store.songs[idx] = { ...store.songs[idx], ...cleanUpdates, updatedAt: new Date().toISOString() };
+  saveLocalStore(store);
+  return store.songs[idx];
+}
+
 export async function deleteSong(id: string): Promise<boolean> {
   const { db } = await connectToDatabase();
   if (db) {
@@ -477,18 +533,35 @@ export async function addShow(item: Omit<ShowItem, 'id' | 'stt'> & { stt?: numbe
 }
 
 export async function updateShow(id: string, updates: Partial<ShowItem>): Promise<ShowItem | null> {
+  const { _id, id: _ignoreId, ...cleanUpdates } = updates as any;
+  if (cleanUpdates.link !== undefined) {
+    const ytId = extractYoutubeId(cleanUpdates.link || '');
+    if (ytId) {
+      cleanUpdates.youtubeId = ytId;
+      cleanUpdates.youtubeUrl = `https://www.youtube.com/watch?v=${ytId}`;
+      cleanUpdates.category = 'YOUTUBE';
+    } else if (cleanUpdates.link && (cleanUpdates.link.startsWith('http://') || cleanUpdates.link.startsWith('https://'))) {
+      cleanUpdates.category = 'ARTICLE';
+    }
+  }
+
   const { db } = await connectToDatabase();
   if (db) {
-    await db.collection('shows').updateOne({ id }, { $set: { ...updates, updatedAt: new Date().toISOString() } });
+    await db.collection('shows').updateOne(
+      { id },
+      { $set: { ...cleanUpdates, updatedAt: new Date().toISOString() } }
+    );
     const updated = await db.collection<ShowItem>('shows').findOne({ id });
-    return updated as any;
+    if (!updated) return null;
+    const { _id: docId, ...rest } = updated as any;
+    return { ...rest, id: rest.id || docId.toString() };
   }
 
   const store = getLocalStore();
   if (!store.shows) store.shows = [...initialShowsData];
   const idx = store.shows.findIndex((s) => s.id === id);
   if (idx === -1) return null;
-  store.shows[idx] = { ...store.shows[idx], ...updates, updatedAt: new Date().toISOString() };
+  store.shows[idx] = { ...store.shows[idx], ...cleanUpdates, updatedAt: new Date().toISOString() };
   saveLocalStore(store);
   return store.shows[idx];
 }

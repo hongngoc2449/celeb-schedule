@@ -115,15 +115,17 @@ export default function ScheduleManagerClient({ initialSchedules }: Props) {
     setSubmitting(true);
 
     try {
+      const { _id, ...cleanData } = formData as any;
+
       if (editingItem) {
         // Update
         const res = await fetch(`/api/schedules/${editingItem.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(cleanData),
         });
         const data = await res.json();
-        if (res.ok) {
+        if (res.ok && data.schedule) {
           setSchedules((prev) =>
             prev.map((s) => (s.id === editingItem.id ? data.schedule : s))
           );
@@ -137,7 +139,7 @@ export default function ScheduleManagerClient({ initialSchedules }: Props) {
         const res = await fetch('/api/schedules', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(cleanData),
         });
         const data = await res.json();
         if (res.ok) {

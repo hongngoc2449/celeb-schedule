@@ -13,7 +13,9 @@ import {
   Play,
   Tv,
   Film,
-  Newspaper
+  Newspaper,
+  Pencil,
+  X
 } from 'lucide-react';
 
 interface Props {
@@ -34,6 +36,14 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
   const [releaseDate, setReleaseDate] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
+  // Song Edit State
+  const [editingSong, setEditingSong] = useState<SongItem | null>(null);
+  const [editSongTitle, setEditSongTitle] = useState('');
+  const [editSongArtists, setEditSongArtists] = useState('OSAD');
+  const [editSongReleaseDate, setEditSongReleaseDate] = useState('');
+  const [editSongYoutubeUrl, setEditSongYoutubeUrl] = useState('');
+  const [savingSong, setSavingSong] = useState(false);
+
   // --- SHOWS STATE ---
   const [shows, setShows] = useState<ShowItem[]>(initialShows);
   const [searchShow, setSearchShow] = useState('');
@@ -42,6 +52,13 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
   const [showTitle, setShowTitle] = useState('');
   const [showDate, setShowDate] = useState('');
   const [showLink, setShowLink] = useState('');
+
+  // Show Edit State
+  const [editingShow, setEditingShow] = useState<ShowItem | null>(null);
+  const [editShowTitle, setEditShowTitle] = useState('');
+  const [editShowDate, setEditShowDate] = useState('');
+  const [editShowLink, setEditShowLink] = useState('');
+  const [savingShow, setSavingShow] = useState(false);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -58,6 +75,106 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
 
   const previewSongYtId = getPreviewYtId(youtubeUrl);
   const previewShowYtId = getPreviewYtId(showLink);
+  const previewEditSongYtId = getPreviewYtId(editSongYoutubeUrl);
+  const previewEditShowYtId = getPreviewYtId(editShowLink);
+
+  const openEditSongModal = (song: SongItem) => {
+    setEditingSong(song);
+    setEditSongTitle(song.title);
+    setEditSongArtists(song.artists || 'OSAD');
+    setEditSongReleaseDate(song.releaseDate || '');
+    setEditSongYoutubeUrl(song.youtubeUrl || '');
+  };
+
+  const closeEditSongModal = () => {
+    setEditingSong(null);
+  };
+
+  const handleSaveSong = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSong) return;
+    if (!editSongTitle.trim()) {
+      alert('Vui lòng nhập tên bài hát');
+      return;
+    }
+
+    setSavingSong(true);
+    try {
+      const res = await fetch(`/api/songs/${editingSong.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editSongTitle.trim(),
+          artists: editSongArtists.trim() || 'OSAD',
+          releaseDate: editSongReleaseDate.trim(),
+          youtubeUrl: editSongYoutubeUrl.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.song) {
+        setSongs((prev) =>
+          prev.map((s) => (s.id === editingSong.id ? data.song : s))
+        );
+        closeEditSongModal();
+        showToast('Đã cập nhật bài hát thành công!');
+      } else {
+        alert(data.error || 'Lỗi cập nhật bài hát');
+      }
+    } catch (err) {
+      alert('Lỗi kết nối máy chủ');
+    } finally {
+      setSavingSong(false);
+    }
+  };
+
+  const openEditShowModal = (show: ShowItem) => {
+    setEditingShow(show);
+    setEditShowTitle(show.title);
+    setEditShowDate(show.date || '');
+    setEditShowLink(show.link || '');
+  };
+
+  const closeEditShowModal = () => {
+    setEditingShow(null);
+  };
+
+  const handleSaveShow = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingShow) return;
+    if (!editShowTitle.trim()) {
+      alert('Vui lòng nhập tên show');
+      return;
+    }
+
+    setSavingShow(true);
+    try {
+      const res = await fetch(`/api/shows/${editingShow.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editShowTitle.trim(),
+          date: editShowDate.trim(),
+          link: editShowLink.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.show) {
+        setShows((prev) =>
+          prev.map((s) => (s.id === editingShow.id ? data.show : s))
+        );
+        closeEditShowModal();
+        showToast('Đã cập nhật show thành công!');
+      } else {
+        alert(data.error || 'Lỗi cập nhật show');
+      }
+    } catch (err) {
+      alert('Lỗi kết nối máy chủ');
+    } finally {
+      setSavingShow(false);
+    }
+  };
 
   // Add Song
   const handleAddSong = async (e: React.FormEvent) => {
@@ -417,13 +534,22 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                             )}
                           </td>
                           <td className="p-3 text-right whitespace-nowrap">
-                            <button
-                              onClick={() => handleDeleteSong(song.id, song.title)}
-                              className="neo-btn bg-white hover:bg-brand-red hover:text-white p-1.5"
-                              title="Xóa bài hát"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-red-600 hover:text-white" />
-                            </button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => openEditSongModal(song)}
+                                className="neo-btn bg-white hover:bg-brand-yellow p-1.5"
+                                title="Chỉnh sửa bài hát"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-black" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteSong(song.id, song.title)}
+                                className="neo-btn bg-white hover:bg-brand-red hover:text-white p-1.5"
+                                title="Xóa bài hát"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-red-600 hover:text-white" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -605,13 +731,22 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                             )}
                           </td>
                           <td className="p-3 text-right whitespace-nowrap">
-                            <button
-                              onClick={() => handleDeleteShow(show.id, show.title)}
-                              className="neo-btn bg-white hover:bg-brand-red hover:text-white p-1.5"
-                              title="Xóa show"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-red-600 hover:text-white" />
-                            </button>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => openEditShowModal(show)}
+                                className="neo-btn bg-white hover:bg-brand-yellow p-1.5"
+                                title="Chỉnh sửa show"
+                              >
+                                <Pencil className="w-3.5 h-3.5 text-black" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteShow(show.id, show.title)}
+                                className="neo-btn bg-white hover:bg-brand-red hover:text-white p-1.5"
+                                title="Xóa show"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-red-600 hover:text-white" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -620,6 +755,222 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* EDIT SONG MODAL                                                */}
+      {/* ============================================================== */}
+      {editingSong && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="neo-box bg-white max-w-lg w-full p-6 border-3 border-black shadow-brutal-lg max-h-[90vh] overflow-y-auto space-y-5">
+            <div className="flex items-center justify-between border-b-2 border-black pb-3">
+              <div>
+                <span className="neo-sticker bg-brand-yellow text-black text-[10px] font-black">
+                  CHỈNH SỬA BÀI HÁT
+                </span>
+                <h3 className="text-lg font-black text-black uppercase font-cocogoose mt-1">
+                  Cập Nhật Bài Hát
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeEditSongModal}
+                className="neo-btn p-1.5 bg-gray-100 hover:bg-black hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSong} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Tên Bài Hát (Song Title) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editSongTitle}
+                  onChange={(e) => setEditSongTitle(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="VD: Người Âm Phủ, Đang Yêu..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Nghệ Sĩ Biểu Diễn / Collab
+                </label>
+                <input
+                  type="text"
+                  value={editSongArtists}
+                  onChange={(e) => setEditSongArtists(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="VD: OSAD ft. ..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Ngày Phát Hành (Format: DD/MM/YYYY)
+                </label>
+                <input
+                  type="text"
+                  value={editSongReleaseDate}
+                  onChange={(e) => setEditSongReleaseDate(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="VD: 15/11/2026 hoặc 2024"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                  <Youtube className="w-4 h-4 text-brand-red" />
+                  Đường Dẫn YouTube (URL)
+                </label>
+                <input
+                  type="url"
+                  value={editSongYoutubeUrl}
+                  onChange={(e) => setEditSongYoutubeUrl(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="https://youtu.be/... hoặc https://www.youtube.com/watch?v=..."
+                />
+              </div>
+
+              {previewEditSongYtId && (
+                <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl flex items-center gap-3">
+                  <div className="w-8 h-8 bg-brand-red text-white rounded-lg flex items-center justify-center shrink-0">
+                    <Play className="w-4 h-4 fill-current" />
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-bold text-red-900 block">
+                      Đã nhận diện Video ID: <code className="font-mono bg-white px-1 py-0.5 rounded border">{previewEditSongYtId}</code>
+                    </span>
+                    <span className="text-[11px] text-gray-600">Video sẽ có thể phát trực tiếp trên trang kho nhạc</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t-2 border-gray-100">
+                <button
+                  type="button"
+                  onClick={closeEditSongModal}
+                  className="neo-btn bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 text-xs font-black"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingSong || !editSongTitle.trim()}
+                  className="neo-btn bg-brand-yellow hover:bg-yellow-400 text-black px-5 py-2 text-xs font-black gap-1.5 shadow-brutal"
+                >
+                  <Check className="w-4 h-4 text-green-700" />
+                  <span>{savingSong ? 'Đang Lưu...' : 'Lưu Thay Đổi'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* EDIT SHOW MODAL                                                */}
+      {/* ============================================================== */}
+      {editingShow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="neo-box bg-white max-w-lg w-full p-6 border-3 border-black shadow-brutal-lg max-h-[90vh] overflow-y-auto space-y-5">
+            <div className="flex items-center justify-between border-b-2 border-black pb-3">
+              <div>
+                <span className="neo-sticker bg-brand-red text-white text-[10px] font-black">
+                  CHỈNH SỬA SHOW / TALKSHOW
+                </span>
+                <h3 className="text-lg font-black text-black uppercase font-cocogoose mt-1">
+                  Cập Nhật Show &amp; Phỏng Vấn
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeEditShowModal}
+                className="neo-btn p-1.5 bg-gray-100 hover:bg-black hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveShow} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Tên Show / Talkshow / Bài Phỏng Vấn *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editShowTitle}
+                  onChange={(e) => setEditShowTitle(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="VD: BẮT BÀI by AA Original, Talkshow..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Ngày Phát Hành / Phát Sóng
+                </label>
+                <input
+                  type="text"
+                  value={editShowDate}
+                  onChange={(e) => setEditShowDate(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="VD: 21/10/2026 hoặc 2024"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-gray-700 mb-1">
+                  Đường Dẫn (URL YouTube / Bài Báo hoặc Tiêu Đề)
+                </label>
+                <input
+                  type="text"
+                  value={editShowLink}
+                  onChange={(e) => setEditShowLink(e.target.value)}
+                  className="neo-input w-full text-sm"
+                  placeholder="https://youtu.be/... hoặc link bài báo"
+                />
+              </div>
+
+              {previewEditShowYtId && (
+                <div className="p-3 bg-red-50 border-2 border-red-200 rounded-xl flex items-center gap-3">
+                  <div className="w-8 h-8 bg-brand-red text-white rounded-lg flex items-center justify-center shrink-0">
+                    <Play className="w-4 h-4 fill-current" />
+                  </div>
+                  <div className="text-xs">
+                    <span className="font-bold text-red-900 block">
+                      Đã nhận diện Video ID YouTube: <code className="font-mono bg-white px-1 py-0.5 rounded border">{previewEditShowYtId}</code>
+                    </span>
+                    <span className="text-[11px] text-gray-600">Video sẽ có thể phát trực tiếp trên trang Show / Talkshow</span>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t-2 border-gray-100">
+                <button
+                  type="button"
+                  onClick={closeEditShowModal}
+                  className="neo-btn bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 text-xs font-black"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingShow || !editShowTitle.trim()}
+                  className="neo-btn bg-brand-red hover:bg-red-700 text-white px-5 py-2 text-xs font-black gap-1.5 shadow-brutal"
+                >
+                  <Check className="w-4 h-4 text-white" />
+                  <span>{savingShow ? 'Đang Lưu...' : 'Lưu Thay Đổi'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

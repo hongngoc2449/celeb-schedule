@@ -6,7 +6,7 @@ export const initialProfile: CelebrityProfile = {
   title: 'Chủ Tịch Mai',
   fandomName: 'Ô Mai',
   quote: 'Làm nhạc bằng cả trái tim, bùng nổ trên mọi sân khấu!',
-  bio: 'Songwriter, Rapper, Nhạc sĩ với loạt hit triệu view như "Người Âm Phủ", "Củ Lạc", "Anh Mệt Rồi", và thành viên nổi bật trong Anh Trai Vượt Ngàn Chông Gai 2024. Phong cách âm nhạc hiện đại, nguồn năng lượng tươi sáng và thời trang độc bản cùng đại gia đình Fandom Ô Mai.',
+  bio: 'Songwriter, Rapper, Nhạc sĩ với loạt hit triệu view như "Người Âm Phủ", "Củ Lạc", "Em Ngủ Chưa?", và thành viên nổi bật trong Anh Trai Vượt Ngàn Chông Gai 2026. Phong cách âm nhạc hiện đại, nguồn năng lượng tươi sáng và thời trang độc bản cùng đại gia đình Fandom Ô Mai.',
   avatarUrl: '/images/hero-bazaar.jpg',
   signatureUrl: '/images/schedule-board.jpg',
   signatureTitle: 'CHỦ TỊCH OSAD',

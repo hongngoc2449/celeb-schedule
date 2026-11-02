@@ -572,7 +572,7 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                     )}
                     <p className="flex items-center gap-2">
                       <span className="text-brand-blue font-black">Bản hit tiêu biểu:</span>
-                      <span>Người Âm Phủ, Củ Lạc, Anh Mệt Rồi...</span>
+                      <span>Người Âm Phủ, Củ Lạc, Em Ngủ Chưa?...</span>
                     </p>
                   </div>
                 </div>

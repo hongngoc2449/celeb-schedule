@@ -153,7 +153,7 @@ export default function AboutSection({ profile }: { profile: CelebrityProfile })
                 Về {profile.stageName} ({profile.title})
               </h3>
               <p className="text-sm sm:text-base text-gray-800 font-semibold leading-relaxed">
-                {profile.bio}
+                {profile.bio.replace(/"Anh Mệt Rồi"/gi, '"Em Ngủ Chưa?"')}
               </p>
 
               {/* Key Highlights Grid */}

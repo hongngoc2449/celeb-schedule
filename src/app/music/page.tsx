@@ -12,14 +12,23 @@ export const metadata: Metadata = {
     'Nghe các sản phẩm âm nhạc, bản hit, collab và theo dõi các show truyền hình, talkshow, phỏng vấn của Chủ Tịch Mai (OSAD - Mai Quang Nam).',
 };
 
-export default async function MusicPage() {
+export default async function MusicPage(props: {
+  searchParams?: Promise<{ song?: string; tab?: string }>;
+}) {
+  const resolvedParams = props.searchParams ? await props.searchParams : {};
   const [songs, shows, profile] = await Promise.all([getSongs(), getShows(), getProfile()]);
 
   return (
     <>
       <Navbar profile={profile} />
       <main className="flex-1">
-        <MusicPlayerPage songs={songs} shows={shows} profile={profile} />
+        <MusicPlayerPage
+          songs={songs}
+          shows={shows}
+          profile={profile}
+          initialSongId={resolvedParams?.song}
+          initialTab={resolvedParams?.tab}
+        />
       </main>
       <Footer profile={profile} />
     </>

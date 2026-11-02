@@ -1,55 +1,97 @@
 import Link from 'next/link';
 import { Music, Play, ArrowRight, Sparkles } from 'lucide-react';
 import { GeoCluster, GeoCircle, GeoTriangle, GeoS } from '@/components/GeometricDecor';
-import { CelebrityProfile } from '@/types';
+import { CelebrityProfile, SongItem } from '@/types';
 import { getSiteText } from '@/lib/siteTexts';
 
-const FEATURED_TRACKS = [
+interface FeaturedTrackConfig {
+  query: string;
+  tag: string;
+  color: string;
+  fallback: {
+    id: string;
+    title: string;
+    releaseDate: string;
+    artists: string;
+  };
+}
+
+const FEATURED_CONFIGS: FeaturedTrackConfig[] = [
   {
-    title: 'Người Âm Phủ',
+    query: 'người âm phủ',
     tag: 'MEGA HIT',
-    year: '2018',
-    views: '110M+ Views',
     color: 'bg-brand-yellow',
+    fallback: {
+      id: 'song-97',
+      title: 'Người Âm Phủ',
+      releaseDate: '10/04/2018',
+      artists: 'OSAD x VRT',
+    },
   },
   {
-    title: 'Củ Lạc',
+    query: 'củ lạc',
     tag: 'VIRAL HIT',
-    year: '2018',
-    views: '45M+ Views',
     color: 'bg-brand-pink',
+    fallback: {
+      id: 'song-93',
+      title: 'Củ Lạc',
+      releaseDate: '01/07/2018',
+      artists: 'OSAD & Turn Hirn',
+    },
   },
   {
-    title: 'Như Một Người Rưng',
+    query: 'như một người rưng',
     tag: 'NEW COLLAB',
-    year: '2024',
-    views: 'ft. Hà An Huy',
     color: 'bg-brand-lightgreen',
+    fallback: {
+      id: 'song-6',
+      title: 'Như Một Người Rưng',
+      releaseDate: '27/10/2026',
+      artists: 'OSAD ft Hà An Huy',
+    },
   },
   {
-    title: 'Thăng Hoa',
+    query: 'thăng hoa',
     tag: 'ATVNCG',
-    year: '2024',
-    views: 'Nhà Thăng Hoa',
     color: 'bg-brand-purple',
+    fallback: {
+      id: 'song-7',
+      title: 'Thăng hoa',
+      releaseDate: '10/10/2026',
+      artists: 'OSAD, Jun Phạm, Hoàng Rob, Hà An Huy...',
+    },
   },
   {
-    title: 'Anh Mệt Rồi',
-    tag: 'HIT SINGLE',
-    year: '2020',
-    views: '20M+ Views',
+    query: 'đang yêu',
+    tag: 'SOLO STAGE',
     color: 'bg-brand-lightblue',
+    fallback: {
+      id: 'song-19',
+      title: 'ĐANG YÊU',
+      releaseDate: '04/07/2026',
+      artists: 'OSAD',
+    },
   },
   {
-    title: 'Và Tôi Cũng Yêu Em',
+    query: 'và tôi cũng yêu em',
     tag: 'STAGE LIVE',
-    year: '2024',
-    views: 'Anh Trai Vượt Ngàn Chông Gai',
     color: 'bg-amber-200',
+    fallback: {
+      id: 'song-10',
+      title: 'VÀ TÔI CŨNG YÊU EM',
+      releaseDate: '26/09/2026',
+      artists: 'OSAD, Hoàng Dũng, Hà An Huy, Đông Hùng...',
+    },
   },
 ];
 
-export default function Discography({ profile }: { profile?: CelebrityProfile }) {
+export default function Discography({
+  profile,
+  songs = [],
+}: {
+  profile?: CelebrityProfile;
+  songs?: SongItem[];
+}) {
   const t = (id: string) => getSiteText(profile?.siteTexts, id);
 
   const discographyDesc = (t('discography_desc') || '')
@@ -64,6 +106,19 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
   const bannerDesc = (t('discography_banner_desc') || '')
     .replace(/66\+?\s*show/gi, 'các show')
     .replace(/96\+?\s*bài\s*hát/gi, 'các bài hát');
+
+  // Synchronize 6 featured tracks with actual songs in Kho Nhạc
+  const featuredTracks = FEATURED_CONFIGS.map((cfg) => {
+    const found = songs.find((s) => s.title.toLowerCase().includes(cfg.query.toLowerCase()));
+    return {
+      id: found?.id || cfg.fallback.id,
+      title: found?.title || cfg.fallback.title,
+      releaseDate: found?.releaseDate || cfg.fallback.releaseDate,
+      artists: found?.artists || cfg.fallback.artists,
+      tag: cfg.tag,
+      color: cfg.color,
+    };
+  });
 
   return (
     <section id="music" className="py-16 sm:py-24 px-4 sm:px-8 border-b-3 border-black bg-[#faf7f2] relative overflow-hidden">
@@ -93,9 +148,9 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
 
         {/* Featured Mini Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-          {FEATURED_TRACKS.map((track, idx) => (
+          {featuredTracks.map((track, idx) => (
             <div
-              key={idx}
+              key={track.id || idx}
               className={`neo-box p-5 ${track.color} hover:translate-x-1 hover:translate-y-1 hover:shadow-brutal-sm transition-all flex flex-col justify-between`}
             >
               <div>
@@ -103,27 +158,27 @@ export default function Discography({ profile }: { profile?: CelebrityProfile })
                   <span className="neo-sticker bg-black text-white text-[10px] font-black">
                     {track.tag}
                   </span>
-                  <span className="text-xs font-black text-black border border-black bg-white px-2 py-0.5 rounded-full">
-                    {track.year}
+                  <span className="text-xs font-black text-black border border-black bg-white px-2 py-0.5 rounded-full font-mono">
+                    {track.releaseDate}
                   </span>
                 </div>
 
-                <h4 className="text-xl font-black text-black uppercase font-cocogoose mb-1">
+                <h4 className="text-xl font-black text-black uppercase font-cocogoose mb-1 line-clamp-1">
                   {track.title}
                 </h4>
-                <p className="text-xs font-bold text-gray-800 flex items-center gap-1">
-                  <Music className="w-3.5 h-3.5 text-black" />
-                  {track.views}
+                <p className="text-xs font-bold text-gray-800 flex items-center gap-1.5 line-clamp-1">
+                  <Music className="w-3.5 h-3.5 text-black shrink-0" />
+                  <span>{track.artists}</span>
                 </p>
               </div>
 
               <div className="pt-6">
                 <Link
-                  href="/music"
-                  className="neo-btn bg-white hover:bg-black hover:text-white text-black text-xs px-3 py-1.5 w-full gap-2 font-black shadow-brutal-sm"
+                  href={`/music?song=${track.id}`}
+                  className="neo-btn bg-white hover:bg-black hover:text-white text-black text-xs px-3 py-1.5 w-full gap-2 font-black shadow-brutal-sm transition-colors"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Mở Kho Âm Nhạc & Show</span>
+                  <span>Phát Bài Này</span>
                 </Link>
               </div>
             </div>

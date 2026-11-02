@@ -168,17 +168,24 @@ export async function deleteSchedule(id: string): Promise<boolean> {
 
 export async function getProfile(): Promise<CelebrityProfile> {
   const { db } = await connectToDatabase();
+  let profileData: CelebrityProfile;
   if (db) {
     const p = await db.collection('profiles').findOne({ key: 'main_profile' });
     if (p) {
       const { _id, key, ...rest } = p as any;
-      return rest;
+      profileData = rest;
     } else {
       await db.collection('profiles').insertOne({ key: 'main_profile', ...initialProfile });
-      return initialProfile;
+      profileData = initialProfile;
     }
+  } else {
+    profileData = getLocalStore().profile;
   }
-  return getLocalStore().profile;
+
+  if (profileData?.bio) {
+    profileData.bio = profileData.bio.replace(/"Anh Mệt Rồi",?\s*/gi, '');
+  }
+  return profileData;
 }
 
 export async function updateProfile(updates: Partial<CelebrityProfile>): Promise<CelebrityProfile> {

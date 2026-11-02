@@ -32,27 +32,41 @@ interface Props {
   songs: SongItem[];
   shows?: ShowItem[];
   profile?: CelebrityProfile;
+  initialSongId?: string;
+  initialTab?: string;
 }
 
-export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
+export default function MusicPlayerPage({
+  songs,
+  shows = [],
+  profile,
+  initialSongId,
+  initialTab,
+}: Props) {
   const t = (id: string) => getSiteText(profile?.siteTexts, id);
 
   // Main Tabs: 'MUSIC' (Sản phẩm âm nhạc) vs 'SHOWS' (Show / Talkshow)
-  const [mainTab, setMainTab] = useState<'MUSIC' | 'SHOWS'>('MUSIC');
+  const [mainTab, setMainTab] = useState<'MUSIC' | 'SHOWS'>(
+    initialTab === 'shows' || initialTab === 'talkshow' ? 'SHOWS' : 'MUSIC'
+  );
 
-  // Check URL query param for default tab
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const tabParam = params.get('tab');
-      if (tabParam === 'shows' || tabParam === 'talkshow') {
-        setMainTab('SHOWS');
-      }
+  // Find initial song index
+  const getInitialSongIdx = () => {
+    if (initialSongId) {
+      const idx = songs.findIndex(
+        (s) =>
+          s.id === initialSongId ||
+          s.stt === initialSongId ||
+          s.title.toLowerCase() === initialSongId.toLowerCase() ||
+          s.title.toLowerCase().includes(initialSongId.toLowerCase())
+      );
+      if (idx !== -1) return idx;
     }
-  }, []);
+    return 0;
+  };
 
   // --- SONGS STATE ---
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(0);
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(getInitialSongIdx);
   const [isPlayingSong, setIsPlayingSong] = useState<boolean>(true);
   const [searchSong, setSearchSong] = useState('');
   const [songFilter, setSongFilter] = useState<'ALL' | 'ATVNCG' | 'COLLAB' | 'SOLO'>('ALL');
@@ -64,6 +78,45 @@ export default function MusicPlayerPage({ songs, shows = [], profile }: Props) {
 
   const [copiedLink, setCopiedLink] = useState(false);
   const playerRef = useRef<HTMLDivElement>(null);
+
+  // Check URL query param for default tab & selected song (handles direct URL & client navigation)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'shows' || tabParam === 'talkshow') {
+        setMainTab('SHOWS');
+      }
+      const targetSong = initialSongId || params.get('song');
+      if (targetSong) {
+        setMainTab('MUSIC');
+        setSongFilter('ALL');
+        const songIdx = songs.findIndex(
+          (s) =>
+            s.id === targetSong ||
+            s.stt === targetSong ||
+            s.title.toLowerCase() === targetSong.toLowerCase() ||
+            s.title.toLowerCase().includes(targetSong.toLowerCase())
+        );
+        if (songIdx !== -1) {
+          setCurrentSongIndex(songIdx);
+          setIsPlayingSong(true);
+        }
+      }
+    }
+  }, [initialSongId, songs]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const targetSong = initialSongId || params.get('song');
+      if (targetSong && playerRef.current) {
+        setTimeout(() => {
+          playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    }
+  }, [initialSongId]);
 
   const currentSong = songs[currentSongIndex] || songs[0];
   const currentShow = shows[currentShowIndex] || shows[0];

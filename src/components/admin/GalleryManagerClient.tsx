@@ -143,7 +143,7 @@ export default function GalleryManagerClient({ initialGallery }: { initialGaller
               />
               {previewUrl ? (
                 <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border-2 border-black">
-                  <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                  <Image src={previewUrl} alt="Preview" fill unoptimized className="object-cover" />
                 </div>
               ) : (
                 <div className="space-y-2 pointer-events-none">
@@ -211,7 +211,7 @@ export default function GalleryManagerClient({ initialGallery }: { initialGaller
           {gallery.map((item) => (
             <div key={item.id} className="neo-box p-3 bg-white space-y-2">
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden border-2 border-black bg-gray-100">
-                <Image src={item.imageUrl} alt={item.title} fill className="object-cover" />
+                <Image src={item.imageUrl} alt={item.title} fill unoptimized className="object-cover" />
               </div>
 
               <div className="flex items-center justify-between pt-1">

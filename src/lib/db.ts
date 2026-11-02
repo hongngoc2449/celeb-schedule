@@ -22,6 +22,7 @@ interface LocalStore {
   songs?: SongItem[];
   shows?: ShowItem[];
   users?: AdminUser[];
+  images?: any[];
 }
 
 function getDefaultAdminUser(): AdminUser {
@@ -246,6 +247,14 @@ export async function addGalleryItem(item: Omit<GalleryItem, 'id'>): Promise<Gal
 export async function deleteGalleryItem(id: string): Promise<boolean> {
   const { db } = await connectToDatabase();
   if (db) {
+    const item = await db.collection('gallery').findOne({ id });
+    if (item && (item as any).imageUrl && (item as any).imageUrl.includes('/api/images/')) {
+      const filename = (item as any).imageUrl.split('/api/images/')[1];
+      const cleanId = filename.replace(/\.[a-zA-Z0-9]+$/, '');
+      await db.collection('uploaded_images').deleteOne({
+        $or: [{ id: cleanId }, { filename }, { id: filename }],
+      });
+    }
     const res = await db.collection('gallery').deleteOne({ id });
     return res.deletedCount > 0;
   }
@@ -254,6 +263,96 @@ export async function deleteGalleryItem(id: string): Promise<boolean> {
   store.gallery = store.gallery.filter((g) => g.id !== id);
   saveLocalStore(store);
   return true;
+}
+
+// ----------------- UPLOADED IMAGES STORAGE (MONGODB / VERCEL SAFE) -----------------
+
+export async function saveUploadedImage(image: {
+  id: string;
+  filename: string;
+  contentType: string;
+  size: number;
+  dataBuffer: Buffer;
+}): Promise<string> {
+  const { db } = await connectToDatabase();
+  const base64Data = image.dataBuffer.toString('base64');
+
+  if (db) {
+    await db.collection('uploaded_images').updateOne(
+      { id: image.id },
+      {
+        $set: {
+          id: image.id,
+          filename: image.filename,
+          contentType: image.contentType,
+          size: image.size,
+          data: base64Data,
+          createdAt: new Date().toISOString(),
+        },
+      },
+      { upsert: true }
+    );
+  } else {
+    const store = getLocalStore();
+    if (!store.images) store.images = [];
+    store.images.unshift({
+      id: image.id,
+      filename: image.filename,
+      contentType: image.contentType,
+      size: image.size,
+      data: base64Data,
+      createdAt: new Date().toISOString(),
+    });
+    saveLocalStore(store);
+  }
+
+  return `/api/images/${image.filename}`;
+}
+
+export async function getUploadedImage(filenameOrId: string): Promise<{
+  contentType: string;
+  buffer: Buffer;
+} | null> {
+  const cleanId = filenameOrId.replace(/\.[a-zA-Z0-9]+$/, '');
+  const { db } = await connectToDatabase();
+
+  if (db) {
+    const doc = await db.collection('uploaded_images').findOne({
+      $or: [{ id: cleanId }, { filename: filenameOrId }, { id: filenameOrId }],
+    });
+    if (doc && (doc as any).data) {
+      return {
+        contentType: (doc as any).contentType || 'image/webp',
+        buffer: Buffer.from((doc as any).data, 'base64'),
+      };
+    }
+  } else {
+    const store = getLocalStore();
+    const doc = store.images?.find(
+      (img: any) => img.id === cleanId || img.filename === filenameOrId || img.id === filenameOrId
+    );
+    if (doc && doc.data) {
+      return {
+        contentType: doc.contentType || 'image/webp',
+        buffer: Buffer.from(doc.data, 'base64'),
+      };
+    }
+  }
+
+  // Fallback to local public/uploads if exists
+  try {
+    const localPath = path.join(process.cwd(), 'public', 'uploads', filenameOrId);
+    if (fs.existsSync(localPath)) {
+      const buffer = fs.readFileSync(localPath);
+      const ext = path.extname(filenameOrId).toLowerCase();
+      const contentType = ext === '.webp' ? 'image/webp' : ext === '.png' ? 'image/png' : 'image/jpeg';
+      return { contentType, buffer };
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return null;
 }
 
 // ----------------- SONGS (MUSIC LIST) -----------------

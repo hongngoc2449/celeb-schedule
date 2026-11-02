@@ -10,6 +10,9 @@
 *.jpg
 !/public/images/**
 
+# Uploads
+/public/uploads
+
 # Next.js build output
 /.next/
 /out/

@@ -1,8 +1,8 @@
 import React from 'react';
 
-// Geometric shapes representing OSAD and OMAI
+// Geometric shapes representing OSAD and OMAI (OXAD / OMAI visual language)
 // O: Red Circle
-// S: Blue S
+// X: Blue Cross
 // A: Green Triangle
 // D: Orange/Amber Square
 // M: Blue Double Arch (M)
@@ -15,6 +15,16 @@ export function GeoCircle({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#
     </svg>
   );
 }
+
+export function GeoCross({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 6L18 18M6 18L18 6" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export const GeoX = GeoCross;
 
 export function GeoS({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
   return (
@@ -60,14 +70,6 @@ export function GeoM({ className = 'w-6 h-6', strokeWidth = 3.6, color = '#2563E
   );
 }
 
-export function GeoCross({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M6 6L18 18M6 18L18 6" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function GeoArch({ className = 'w-6 h-6', strokeWidth = 3.5, color = '#2563EB' }: { className?: string; strokeWidth?: number; color?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -90,7 +92,7 @@ export function GeoBar({ className = 'w-6 h-6', strokeWidth = 4, color = '#DC262
  */
 export function OsadOmaiStampBadge({
   className = '',
-  useX = false,
+  useX = true,
 }: {
   className?: string;
   useX?: boolean;
@@ -98,9 +100,9 @@ export function OsadOmaiStampBadge({
   return (
     <div
       className={`inline-flex flex-col items-center justify-center bg-brand-yellow px-3 py-2 rounded-2xl border-3 border-black shadow-brutal select-none ${className}`}
-      title={useX ? 'OXAD OMAI Emblem' : 'OSAD OMAI Emblem'}
+      title="OSAD OMAI Emblem"
     >
-      {/* Row 1: O S/X A D */}
+      {/* Row 1: O X A D (Circle, Cross, Triangle, Square) */}
       <div className="flex items-center gap-1.5 sm:gap-2">
         <GeoCircle className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3.8} color="#DC2626" />
         {useX ? (
@@ -127,13 +129,13 @@ export function OsadOmaiStampBadge({
 export const OxadOmaiStampBadge = OsadOmaiStampBadge;
 
 /**
- * Playful mini cluster of geometric icons for inline decorations (O S A D)
+ * Playful mini cluster of geometric icons for inline decorations (O X A D)
  */
 export function GeoCluster({ className = '' }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border-2 border-black shadow-brutal-xs ${className}`}>
       <GeoCircle className="w-3.5 h-3.5" strokeWidth={4} color="#DC2626" />
-      <GeoS className="w-3.5 h-3.5" strokeWidth={4} color="#2563EB" />
+      <GeoCross className="w-3.5 h-3.5" strokeWidth={4} color="#2563EB" />
       <GeoTriangle className="w-3.5 h-3.5" strokeWidth={4} color="#16A34A" />
       <GeoSquare className="w-3.5 h-3.5" strokeWidth={4} color="#D97706" />
     </span>

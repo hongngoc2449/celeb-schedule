@@ -82,18 +82,22 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
 
   // Google Calendar URL generator
   const getGoogleCalendarUrl = (item: ScheduleItem) => {
+    const isOnline = item.location?.toUpperCase() === 'ONLINE' || item.locationType === 'ONLINE';
+    const isPrivate = item.location?.toUpperCase() === 'PRIVATE' || item.locationType === 'PRIVATE';
+    const locString = isOnline ? 'Trực tuyến (Online / Livestream)' : isPrivate ? 'Sự kiện kín (Private Show)' : `${item.venue ? `${item.venue}, ` : ''}${item.location || 'Việt Nam'}`;
+
     const title = encodeURIComponent(`[OSAD - Chủ Tịch Mai] ${item.title}`);
     const details = encodeURIComponent(
       `Lịch công tác chính thức của OSAD (Mai Quang Nam - Chủ Tịch Mai)\n` +
       `Thời gian: ${item.dateDisplay} ${item.time ? `(${item.time})` : ''}\n` +
-      `Địa điểm: ${item.venue ? `${item.venue}, ` : ''}${item.location || 'Việt Nam'}\n` +
+      `Hình thức / Địa điểm: ${locString}\n` +
       (item.organizer ? `Đơn vị tổ chức: ${item.organizer}\n` : '') +
       (item.lineup ? `Khách mời: ${item.lineup}\n` : '') +
       (item.ticketUrl ? `Link vé / sự kiện: ${item.ticketUrl}\n` : '') +
       (item.note ? `Lưu ý Fandom Ô Mai: ${item.note}\n` : '') +
       `Trạng thái: ${item.status === 'TBU' ? 'Dự kiến (TBU)' : 'Đã xác nhận'}`
     );
-    const location = encodeURIComponent(`${item.venue ? `${item.venue}, ` : ''}${item.location || 'Việt Nam'}`);
+    const location = encodeURIComponent(locString);
     const cleanDate = item.startDate.replace(/-/g, '');
     const cleanEndDate = (item.endDate ? item.endDate.replace(/-/g, '') : cleanDate);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${cleanDate}/${cleanEndDate}`;
@@ -311,7 +315,11 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                                         item.locationColor
                                       )}`}
                                     >
-                                      📍 {item.location}
+                                      {item.location.toUpperCase() === 'ONLINE' || item.locationType === 'ONLINE'
+                                        ? '🌐 ONLINE'
+                                        : item.location.toUpperCase() === 'PRIVATE' || item.locationType === 'PRIVATE'
+                                        ? '🔒 PRIVATE'
+                                        : `📍 ${item.location}`}
                                     </span>
                                   </div>
                                 )}
@@ -390,7 +398,11 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                                         item.locationColor
                                       )}`}
                                     >
-                                      📍 {item.location}
+                                      {item.location.toUpperCase() === 'ONLINE' || item.locationType === 'ONLINE'
+                                        ? '🌐 ONLINE'
+                                        : item.location.toUpperCase() === 'PRIVATE' || item.locationType === 'PRIVATE'
+                                        ? '🔒 PRIVATE'
+                                        : `📍 ${item.location}`}
                                     </span>
                                   </div>
                                 )}
@@ -509,38 +521,103 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                 </div>
 
                 {/* Location Card */}
-                <div className="neo-box-sm p-4 bg-[#fffef9] space-y-2 mb-5">
-                  <span className="text-[11px] font-black uppercase text-gray-500 flex items-center gap-1.5 font-cocogoose">
-                    <MapPin className="w-4 h-4 text-brand-red" />
-                    Địa Điểm & Khu Vực
-                  </span>
-                  <div className="space-y-1.5">
-                    {activeEvent.venue && (
-                      <div className="text-sm font-black text-black flex items-center gap-1.5">
-                        <span className="text-brand-red">🏛️ Sân khấu:</span>
-                        <span>{activeEvent.venue}</span>
+                {(() => {
+                  const isOnline =
+                    activeEvent.location?.toUpperCase() === 'ONLINE' ||
+                    activeEvent.locationType === 'ONLINE' ||
+                    activeEvent.location?.toLowerCase().includes('online');
+                  const isPrivate =
+                    activeEvent.location?.toUpperCase() === 'PRIVATE' ||
+                    activeEvent.locationType === 'PRIVATE' ||
+                    activeEvent.location?.toLowerCase().includes('private');
+
+                  if (isOnline) {
+                    return (
+                      <div className="neo-box-sm p-4 bg-cyan-50/70 border-cyan-400 space-y-2 mb-5">
+                        <span className="text-[11px] font-black uppercase text-cyan-800 flex items-center gap-1.5 font-cocogoose">
+                          <span className="text-sm">🌐</span>
+                          Hình Thức Trực Tuyến
+                        </span>
+                        <div className="space-y-1.5">
+                          <div className="text-sm font-black text-cyan-950 flex items-center gap-2">
+                            <span className="neo-badge bg-cyan-400 text-black text-[10px] px-1.5 py-0.5">ONLINE</span>
+                            <span>Sự Kiện Trực Tuyến / Livestream</span>
+                          </div>
+                          {activeEvent.venue ? (
+                            <p className="text-xs font-bold text-gray-700">
+                              💻 Nền tảng: <span className="font-extrabold text-black">{activeEvent.venue}</span>
+                            </p>
+                          ) : (
+                            <p className="text-xs font-bold text-gray-600">
+                              💻 Diễn ra trên các nền tảng phát sóng trực tuyến chính thức.
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-sm font-extrabold text-gray-800">
-                        📍 {activeEvent.location || 'Địa điểm đang được Ban Tổ Chức cập nhật'}
+                    );
+                  }
+
+                  if (isPrivate) {
+                    return (
+                      <div className="neo-box-sm p-4 bg-purple-50/70 border-purple-400 space-y-2 mb-5">
+                        <span className="text-[11px] font-black uppercase text-purple-800 flex items-center gap-1.5 font-cocogoose">
+                          <span className="text-sm">🔒</span>
+                          Tính Chất Sự Kiện
+                        </span>
+                        <div className="space-y-1.5">
+                          <div className="text-sm font-black text-purple-950 flex items-center gap-2">
+                            <span className="neo-badge bg-purple-500 text-white text-[10px] px-1.5 py-0.5">PRIVATE</span>
+                            <span>Sự Kiện Kín (Private Show)</span>
+                          </div>
+                          {activeEvent.venue ? (
+                            <p className="text-xs font-bold text-gray-700">
+                              🏛️ Ghi chú: <span className="font-extrabold text-black">{activeEvent.venue}</span>
+                            </p>
+                          ) : (
+                            <p className="text-xs font-bold text-gray-600">
+                              🔒 Địa điểm bảo mật nội bộ, chỉ dành cho khách mời đặc quyền.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="neo-box-sm p-4 bg-[#fffef9] space-y-2 mb-5">
+                      <span className="text-[11px] font-black uppercase text-gray-500 flex items-center gap-1.5 font-cocogoose">
+                        <MapPin className="w-4 h-4 text-brand-red" />
+                        Địa Điểm &amp; Khu Vực
                       </span>
-                      {(activeEvent.location || activeEvent.venue) && (
-                        <a
-                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                            `${activeEvent.venue ? `${activeEvent.venue}, ` : ''}${activeEvent.location || ''}`
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="neo-btn bg-white hover:bg-gray-100 text-xs px-2.5 py-1 gap-1"
-                        >
-                          <span>Bản đồ</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <div className="space-y-1.5">
+                        {activeEvent.venue && (
+                          <div className="text-sm font-black text-black flex items-center gap-1.5">
+                            <span className="text-brand-red">🏛️ Sân khấu:</span>
+                            <span>{activeEvent.venue}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between flex-wrap gap-2">
+                          <span className="text-sm font-extrabold text-gray-800">
+                            📍 {activeEvent.location || 'Địa điểm đang được Ban Tổ Chức cập nhật'}
+                          </span>
+                          {(activeEvent.location || activeEvent.venue) && (
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                `${activeEvent.venue ? `${activeEvent.venue}, ` : ''}${activeEvent.location || ''}`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="neo-btn bg-white hover:bg-gray-100 text-xs px-2.5 py-1 gap-1"
+                            >
+                              <span>Bản đồ</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
 
                 {/* Program & Performance Info */}
                 <div className="space-y-3 mb-5">

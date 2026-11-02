@@ -20,6 +20,8 @@ export type LocationBadgeColor =
   | 'orange'
   | 'blue';
 
+export type LocationType = 'OFFLINE' | 'ONLINE' | 'PRIVATE';
+
 export interface ScheduleItem {
   id: string;
   title: string;
@@ -30,8 +32,9 @@ export interface ScheduleItem {
   year: number;
   time?: string; // e.g. "19:30" or "20:00 - 22:30"
   category: ScheduleCategory;
-  location?: string; // Tỉnh / Thành phố: TP. HỒ CHÍ MINH, HÀ NỘI...
-  venue?: string; // Địa điểm cụ thể / Sân khấu: Sân Vận Động Mỹ Đình, Aeon Mall...
+  locationType?: LocationType;
+  location?: string; // Tỉnh / Thành phố: TP. HỒ CHÍ MINH, HÀ NỘI, ONLINE, PRIVATE...
+  venue?: string; // Địa điểm cụ thể / Sân khấu / Nền tảng livestream
   locationColor?: LocationBadgeColor;
   status: ScheduleStatus;
   noteIcon?: string;

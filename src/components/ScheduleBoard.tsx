@@ -570,10 +570,6 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
                         <span className="bg-amber-100 text-amber-900 px-2 py-0.5 rounded border border-amber-300 font-extrabold">{activeEvent.ticketInfo}</span>
                       </p>
                     )}
-                    <p className="flex items-center gap-2">
-                      <span className="text-brand-blue font-black">Bản hit tiêu biểu:</span>
-                      <span>Người Âm Phủ, Củ Lạc, Em Ngủ Chưa?...</span>
-                    </p>
                   </div>
                 </div>
 

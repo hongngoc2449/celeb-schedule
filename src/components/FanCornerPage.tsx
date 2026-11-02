@@ -479,6 +479,7 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
           leaderboardLabel={t('corner_game_leaderboard')}
           namePlaceholder={t('corner_game_name')}
           emptyBoardLabel={t('corner_game_empty_board')}
+          nextLabel={t('corner_game_next')}
           images={stackImages}
           onClose={closeGame}
         />

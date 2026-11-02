@@ -33,6 +33,7 @@ interface StackDropGameProps {
   leaderboardLabel: string;
   namePlaceholder: string;
   emptyBoardLabel: string;
+  nextLabel: string;
   images: string[];
   onClose: () => void;
 }
@@ -87,10 +88,12 @@ export default function StackDropGame({
   leaderboardLabel,
   namePlaceholder,
   emptyBoardLabel,
+  nextLabel,
   images,
   onClose,
 }: StackDropGameProps) {
   const savedSession = readStackSession();
+  const initialNextSize = randomDropSize();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const piecesRef = useRef<StackPiece[]>(savedSession.pieces);
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -100,7 +103,7 @@ export default function StackDropGame({
     inside: false,
   });
   const nextIdRef = useRef(savedSession.nextId);
-  const nextSizeRef = useRef(randomDropSize());
+  const nextSizeRef = useRef(initialNextSize);
   const lastDropRef = useRef(0);
   const scoreRef = useRef(savedSession.score);
   const gameOverRef = useRef(savedSession.gameOver);
@@ -115,6 +118,7 @@ export default function StackDropGame({
   const [leaders, setLeaders] = useState<StackScore[]>([]);
   const [savingScore, setSavingScore] = useState(false);
   const [dropReady, setDropReady] = useState(true);
+  const [nextSize, setNextSize] = useState(initialNextSize);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -348,17 +352,20 @@ export default function StackDropGame({
     if (point.y > STACK_DROP_LINE_Y) return;
     const piece = createStackPiece(nextIdRef.current, point.x, point.y, nextSizeRef.current, now);
     nextIdRef.current += 1;
-    nextSizeRef.current = randomDropSize();
+    const upcoming = randomDropSize();
+    nextSizeRef.current = upcoming;
+    setNextSize(upcoming);
     lastDropRef.current = now;
     setDropReady(false);
     piecesRef.current = [...piecesRef.current, piece];
   }
 
   function handleReset() {
+    const upcoming = randomDropSize();
     piecesRef.current = [];
     scoreRef.current = 0;
     nextIdRef.current = 1;
-    nextSizeRef.current = randomDropSize();
+    nextSizeRef.current = upcoming;
     lastDropRef.current = 0;
     gameOverRef.current = false;
     warningStartedAtRef.current = null;
@@ -368,6 +375,7 @@ export default function StackDropGame({
     setGameOver(false);
     setWarningLeftMs(0);
     setDropReady(true);
+    setNextSize(upcoming);
   }
 
   return (
@@ -389,6 +397,24 @@ export default function StackDropGame({
 
         <div className="flex flex-col items-stretch gap-4 md:flex-row md:items-start md:justify-center">
           <div className="relative mx-auto w-full max-w-[320px] shrink-0 md:mx-0">
+            <div className="mb-2 flex items-center justify-center gap-3 rounded-2xl border border-[#f3c6d0] bg-white px-3 py-2">
+              <span className="text-sm font-bold text-[#a06b7c]">{nextLabel}</span>
+              <div
+                className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-[3px]"
+                style={{
+                  borderColor: RING_COLORS[nextSize],
+                  opacity: dropReady && !gameOver ? 1 : 0.45,
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={images[nextSize] || images[0]}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <span className="text-sm font-black text-[#6d2940]">Size {nextSize + 1}</span>
+            </div>
             <canvas
               ref={canvasRef}
               width={STACK_BOARD_WIDTH}

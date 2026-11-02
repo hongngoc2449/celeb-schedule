@@ -643,6 +643,12 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     location: 'Bảng điểm trống',
     defaultValue: 'Chưa có điểm',
   },
+  {
+    id: 'corner_game_next',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn bóng sắp thả',
+    defaultValue: 'Tiếp theo',
+  },
 
   // 9. Chân Trang (Footer)
   {

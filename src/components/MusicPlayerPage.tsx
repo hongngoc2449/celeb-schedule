@@ -124,27 +124,8 @@ export default function MusicPlayerPage({
   // Filtering Songs
   const filteredSongs = useMemo(() => {
     return songs.filter((song) => {
-      if (songFilter === 'ATVNCG') {
-        const isATVNCG =
-          song.title.toLowerCase().includes('anh trai') ||
-          song.artists.toLowerCase().includes('anh trai') ||
-          song.title.toLowerCase().includes('thăng hoa') ||
-          song.artists.includes('Jun Phạm') ||
-          song.artists.includes('Hoàng Dũng') ||
-          song.artists.includes('Đông Hùng');
-        if (!isATVNCG) return false;
-      } else if (songFilter === 'COLLAB') {
-        const isCollab =
-          song.artists.toLowerCase().includes('ft') ||
-          song.artists.includes(',') ||
-          song.artists.includes('&');
-        if (!isCollab) return false;
-      } else if (songFilter === 'SOLO') {
-        const isSolo =
-          !song.artists.toLowerCase().includes('ft') &&
-          !song.artists.includes(',') &&
-          !song.artists.includes('&');
-        if (!isSolo) return false;
+      if (songFilter !== 'ALL' && song.songType !== songFilter) {
+        return false;
       }
 
       if (searchSong.trim()) {

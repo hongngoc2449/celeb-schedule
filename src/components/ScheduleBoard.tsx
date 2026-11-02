@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ScheduleItem, CelebrityProfile } from '@/types';
 import { getSiteText } from '@/lib/siteTexts';
@@ -38,8 +38,27 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
   // Selected event for Right-side Detail Panel (default to first event)
   const [activeEvent, setActiveEvent] = useState<ScheduleItem>(initialSchedules[2] || initialSchedules[0]);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
 
   const detailPanelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileDetailOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    detailPanelRef.current?.scrollTo({ top: 0 });
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileDetailOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileDetailOpen, activeEvent]);
 
   // Filter schedules
   const filteredSchedules = useMemo(() => {
@@ -67,9 +86,8 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
 
   const handleSelectEvent = (item: ScheduleItem) => {
     setActiveEvent(item);
-    // On mobile devices, smoothly scroll to the detail panel
-    if (window.innerWidth < 1024 && detailPanelRef.current) {
-      detailPanelRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (window.innerWidth < 1024) {
+      setMobileDetailOpen(true);
     }
   };
 
@@ -455,7 +473,31 @@ export default function ScheduleBoard({ initialSchedules, profile }: Props) {
           {/* ------------------------------------------------------------ */}
           {/* RIGHT COLUMN: EVENT DETAIL PANEL (STICKY ON DESKTOP) (5 COLS)*/}
           {/* ------------------------------------------------------------ */}
-          <div ref={detailPanelRef} className="lg:col-span-5 xl:col-span-5 lg:sticky lg:top-24 space-y-4">
+          {mobileDetailOpen && (
+            <button
+              type="button"
+              aria-label="Đóng chi tiết lịch"
+              className="lg:hidden fixed inset-0 z-[60] bg-black/55"
+              onClick={() => setMobileDetailOpen(false)}
+            />
+          )}
+          <div
+            ref={detailPanelRef}
+            className={`space-y-4 fixed top-0 right-0 z-[70] h-full w-full max-w-[440px] overflow-y-auto border-l-[3px] border-black bg-[#faf7f2] p-4 shadow-brutal-xl transition-transform duration-300 ease-out lg:sticky lg:top-24 lg:z-auto lg:col-span-5 lg:h-auto lg:max-w-none lg:translate-x-0 lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none xl:col-span-5 ${
+              mobileDetailOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className="lg:hidden sticky top-0 z-10 -mx-4 -mt-4 mb-3 flex items-center justify-between border-b-[3px] border-black bg-white px-4 py-3">
+              <span className="text-sm font-black uppercase">Chi tiết lịch</span>
+              <button
+                type="button"
+                onClick={() => setMobileDetailOpen(false)}
+                className="neo-btn bg-brand-red text-white text-sm px-3 py-1.5 gap-1.5"
+              >
+                <X className="w-4 h-4" />
+                <span>Đóng</span>
+              </button>
+            </div>
             {activeEvent ? (
               <div className="neo-box p-6 bg-white border-3 border-black shadow-brutal-xl relative overflow-hidden transition-all animate-fadeIn">
                 

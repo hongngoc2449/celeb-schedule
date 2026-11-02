@@ -15,8 +15,8 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-[#f3ede2] flex flex-col">
       {/* Top Admin Header */}
-      <header className="bg-white border-b-3 border-black py-3 px-4 sm:px-8 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <header className="bg-white border-b-3 border-black py-3 px-4 sm:px-8 sticky top-0 z-40 w-full max-w-full">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3 min-w-0 md:flex-row md:flex-wrap md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <Link href="/admin" className="flex items-center gap-2">
               <div className="w-9 h-9 bg-brand-yellow rounded-lg border-2 border-black p-1 flex items-center justify-center">

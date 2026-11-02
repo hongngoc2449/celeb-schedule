@@ -43,8 +43,8 @@ export default function Footer({ profile }: { profile?: CelebrityProfile }) {
             <span>•</span>
             <Link href="/#contact" className="hover:text-black hover:underline">Liên Hệ Blog</Link>
             <span>•</span>
-            <Link href="/admin" className="text-brand-red hover:underline font-black">
-              Admin
+            <Link href="/goc-nho" className="text-brand-red hover:underline font-black">
+              {t('footer_link_corner')}
             </Link>
           </div>
           <p className="text-[11px] italic font-semibold text-gray-500">

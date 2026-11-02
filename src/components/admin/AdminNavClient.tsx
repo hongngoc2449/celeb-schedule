@@ -1,12 +1,22 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Music, Image as ImageIcon, User, LogOut, ExternalLink, KeyRound } from 'lucide-react';
+import { scrollTabIntoZone } from '@/lib/scrollTabIntoZone';
 
 export default function AdminNavClient() {
   const pathname = usePathname();
   const router = useRouter();
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const tab = nav.querySelector<HTMLElement>('[data-active="true"]');
+    scrollTabIntoZone(nav, tab);
+  }, [pathname]);
 
   if (pathname === '/admin/login') {
     return null;
@@ -27,8 +37,12 @@ export default function AdminNavClient() {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="flex items-center gap-1.5">
+    <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:items-center">
+      <nav
+        ref={navRef}
+        aria-label="Mục quản trị"
+        className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 min-w-0 md:flex-wrap md:overflow-visible md:pb-0"
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -36,7 +50,9 @@ export default function AdminNavClient() {
             <Link
               key={item.href}
               href={item.href}
-              className={`neo-btn text-xs sm:text-sm px-3 py-1.5 gap-1.5 ${
+              data-active={isActive ? 'true' : 'false'}
+              onClick={(event) => scrollTabIntoZone(navRef.current, event.currentTarget)}
+              className={`neo-btn shrink-0 whitespace-nowrap text-sm px-3 py-1.5 gap-1.5 ${
                 isActive
                   ? 'bg-brand-yellow font-black'
                   : 'bg-white hover:bg-gray-100 text-black'
@@ -47,15 +63,15 @@ export default function AdminNavClient() {
             </Link>
           );
         })}
-      </div>
+      </nav>
 
-      <div className="h-6 w-[2px] bg-black/20 mx-1 hidden sm:block" />
+      <div className="hidden md:block h-6 w-[2px] bg-black/20 mx-1" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         <Link
           href="/"
           target="_blank"
-          className="neo-btn bg-white hover:bg-brand-lightblue text-xs sm:text-sm px-3 py-1.5 gap-1.5"
+          className="neo-btn bg-white hover:bg-brand-lightblue text-sm px-3 py-1.5 gap-1.5"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span>Xem Web</span>
@@ -63,7 +79,7 @@ export default function AdminNavClient() {
 
         <button
           onClick={handleLogout}
-          className="neo-btn bg-brand-red text-white hover:bg-red-700 text-xs sm:text-sm px-3 py-1.5 gap-1.5"
+          className="neo-btn bg-brand-red text-white hover:bg-red-700 text-sm px-3 py-1.5 gap-1.5"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Thoát</span>

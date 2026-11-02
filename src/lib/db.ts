@@ -1,10 +1,21 @@
 import { MongoClient, Db } from 'mongodb';
 import { initialProfile, initialSchedules, initialGallery } from './initialData';
-import { ScheduleItem, CelebrityProfile, GalleryItem, SongItem, ShowItem, AdminUser } from '@/types';
+import {
+  ScheduleItem,
+  CelebrityProfile,
+  GalleryItem,
+  SongItem,
+  ShowItem,
+  AdminUser,
+  FanMessage,
+  StackScore,
+} from '@/types';
 import initialSongsData from './musicData.json';
 import { initialShowsData } from './initialShows';
 import fs from 'fs';
 import path from 'path';
+import { hashPassword, isBcryptHash } from './password';
+import { isSongType, resolveSongType } from './songType';
 
 const uri = process.env.MONGODB_URI || '';
 const dbName = process.env.MONGODB_DB || 'osad_celebrity';
@@ -23,13 +34,29 @@ interface LocalStore {
   shows?: ShowItem[];
   users?: AdminUser[];
   images?: any[];
+  messages?: FanMessage[];
+  stackScores?: StackScore[];
 }
 
-function getDefaultAdminUser(): AdminUser {
+/**
+ * Username tài khoản quản trị gốc, lấy từ env.
+ * @returns {string} Username đã chuẩn hóa chữ thường.
+ */
+function getPrimaryAdminUsername(): string {
+  return (process.env.ADMIN_USERNAME || 'admin').trim().toLowerCase();
+}
+
+/**
+ * Tạo tài khoản admin gốc với mật khẩu đã băm.
+ * Chỉ ghi xuống kho khi chưa có user nào.
+ * @returns {Promise<AdminUser>} User admin mặc định.
+ */
+async function buildDefaultAdminUser(): Promise<AdminUser> {
+  const plainPassword = process.env.ADMIN_PASSWORD || 'lena2202';
   return {
     id: 'usr-primary-admin',
-    username: process.env.ADMIN_USERNAME || 'admin',
-    password: process.env.ADMIN_PASSWORD || 'lena2202',
+    username: getPrimaryAdminUsername(),
+    password: await hashPassword(plainPassword),
     name: 'Chủ Tịch Mai (Admin)',
     role: 'admin',
     createdAt: '2026-11-01T00:00:00.000Z',
@@ -48,8 +75,8 @@ function getLocalStore(): LocalStore {
         if (!parsed.shows || parsed.shows.length === 0) {
           parsed.shows = initialShowsData as ShowItem[];
         }
-        if (!parsed.users || parsed.users.length === 0) {
-          parsed.users = [getDefaultAdminUser()];
+        if (!parsed.users) {
+          parsed.users = [];
         }
         return parsed;
       }
@@ -63,7 +90,7 @@ function getLocalStore(): LocalStore {
     gallery: initialGallery,
     songs: initialSongsData as SongItem[],
     shows: initialShowsData as ShowItem[],
-    users: [getDefaultAdminUser()],
+    users: [],
   };
 }
 
@@ -384,6 +411,186 @@ export async function getUploadedImage(filenameOrId: string): Promise<{
   return null;
 }
 
+// ----------------- FAN MESSAGES -----------------
+
+/**
+ * Xóa ảnh đã lưu qua /api/images khi lời nhắn bị gỡ.
+ * @param {string | undefined} imageUrl Đường dẫn ảnh của lời nhắn.
+ * @returns {Promise<void>}
+ */
+async function deleteUploadedImageByUrl(imageUrl?: string): Promise<void> {
+  if (!imageUrl || !imageUrl.includes('/api/images/')) return;
+  const filename = decodeURIComponent(imageUrl.split('/api/images/')[1] || '');
+  if (!filename) return;
+  const cleanId = filename.replace(/\.[a-zA-Z0-9]+$/, '');
+
+  try {
+    const { db } = await connectToDatabase();
+    if (db) {
+      await db.collection('uploaded_images').deleteOne({
+        $or: [{ id: cleanId }, { filename }, { id: filename }],
+      });
+      return;
+    }
+
+    const store = getLocalStore();
+    if (store.images) {
+      store.images = store.images.filter(
+        (img: { id?: string; filename?: string }) =>
+          img.id !== cleanId && img.filename !== filename && img.id !== filename
+      );
+      saveLocalStore(store);
+    }
+  } catch (error) {
+    console.error('Delete uploaded image failed:', error);
+  }
+}
+
+/**
+ * Danh sách lời nhắn, mới nhất trước.
+ * @returns {Promise<FanMessage[]>}
+ */
+export async function getFanMessages(): Promise<FanMessage[]> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const items = await db.collection<FanMessage>('fan_messages').find({}).sort({ createdAt: -1 }).toArray();
+    return items.map(({ _id, ...rest }: FanMessage & { _id?: { toString(): string } }) => ({
+      ...rest,
+      id: rest.id || _id?.toString() || '',
+    }));
+  }
+  const messages = getLocalStore().messages || [];
+  return [...messages].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
+/**
+ * Lưu lời nhắn mới.
+ * @param {Omit<FanMessage, 'id' | 'createdAt'>} item Nội dung đã kiểm tra.
+ * @returns {Promise<FanMessage>}
+ */
+export async function createFanMessage(item: Omit<FanMessage, 'id' | 'createdAt'>): Promise<FanMessage> {
+  const message: FanMessage = {
+    ...item,
+    id: 'msg-' + Date.now(),
+    createdAt: new Date().toISOString(),
+  };
+
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('fan_messages').insertOne({ ...message });
+    return message;
+  }
+
+  const store = getLocalStore();
+  if (!store.messages) store.messages = [];
+  store.messages.unshift(message);
+  saveLocalStore(store);
+  return message;
+}
+
+/**
+ * Xóa một lời nhắn và ảnh đính kèm. Chỉ gọi sau khi đã kiểm tra quyền admin.
+ * @param {string} id Id lời nhắn.
+ * @returns {Promise<boolean>} true nếu đã xóa.
+ */
+export async function deleteFanMessage(id: string): Promise<boolean> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const existing = await db.collection<FanMessage>('fan_messages').findOne({ id });
+    if (!existing) return false;
+    await deleteUploadedImageByUrl(existing.imageUrl);
+    await deleteUploadedImageByUrl(existing.signatureUrl);
+    const result = await db.collection('fan_messages').deleteOne({ id });
+    return result.deletedCount > 0;
+  }
+
+  const store = getLocalStore();
+  const existing = store.messages?.find((item) => item.id === id);
+  if (!existing) return false;
+  store.messages = (store.messages || []).filter((item) => item.id !== id);
+
+  const filenames = [existing.imageUrl, existing.signatureUrl]
+    .map((url) => (url && url.includes('/api/images/') ? decodeURIComponent(url.split('/api/images/')[1] || '') : ''))
+    .filter(Boolean);
+  if (store.images && filenames.length > 0) {
+    store.images = store.images.filter((img: { id?: string; filename?: string }) => {
+      return !filenames.some((filename) => {
+        const cleanId = filename.replace(/\.[a-zA-Z0-9]+$/, '');
+        return img.id === cleanId || img.filename === filename || img.id === filename;
+      });
+    });
+  }
+  saveLocalStore(store);
+  return true;
+}
+
+const STACK_SCORE_TOP = 10;
+
+/**
+ * Top điểm minigame xếp ảnh, cao nhất trước.
+ * @returns {Promise<StackScore[]>} Tối đa 10 bản ghi.
+ */
+export async function getStackScores(): Promise<StackScore[]> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const items = await db
+      .collection<StackScore>('stack_scores')
+      .find({})
+      .sort({ score: -1, createdAt: 1 })
+      .limit(STACK_SCORE_TOP)
+      .toArray();
+    return items.map(({ _id, ...rest }: StackScore & { _id?: { toString(): string } }) => ({
+      ...rest,
+      id: rest.id || _id?.toString() || '',
+    }));
+  }
+  const scores = getLocalStore().stackScores || [];
+  return [...scores]
+    .sort((left, right) => right.score - left.score || left.createdAt.localeCompare(right.createdAt))
+    .slice(0, STACK_SCORE_TOP);
+}
+
+/**
+ * Thêm điểm mới rồi giữ lại top 10.
+ * @param {Omit<StackScore, 'id' | 'createdAt'>} item Tên và điểm đã kiểm tra.
+ * @returns {Promise<StackScore[]>} Bảng xếp hạng sau khi cập nhật.
+ */
+export async function createStackScore(item: Omit<StackScore, 'id' | 'createdAt'>): Promise<StackScore[]> {
+  const entry: StackScore = {
+    ...item,
+    id: 'stk-' + Date.now(),
+    createdAt: new Date().toISOString(),
+  };
+
+  const { db } = await connectToDatabase();
+  if (db) {
+    await db.collection('stack_scores').insertOne({ ...entry });
+    const items = await db
+      .collection<StackScore>('stack_scores')
+      .find({})
+      .sort({ score: -1, createdAt: 1 })
+      .toArray();
+    const ranked = items.map(({ _id, ...rest }: StackScore & { _id?: { toString(): string } }) => ({
+      ...rest,
+      id: rest.id || _id?.toString() || '',
+    }));
+    const keepIds = new Set(ranked.slice(0, STACK_SCORE_TOP).map((row) => row.id));
+    const dropIds = ranked.filter((row) => !keepIds.has(row.id)).map((row) => row.id);
+    if (dropIds.length > 0) {
+      await db.collection('stack_scores').deleteMany({ id: { $in: dropIds } });
+    }
+    return ranked.slice(0, STACK_SCORE_TOP);
+  }
+
+  const store = getLocalStore();
+  const next = [...(store.stackScores || []), entry]
+    .sort((left, right) => right.score - left.score || left.createdAt.localeCompare(right.createdAt))
+    .slice(0, STACK_SCORE_TOP);
+  store.stackScores = next;
+  saveLocalStore(store);
+  return next;
+}
+
 // ----------------- SONGS (MUSIC LIST) -----------------
 
 export function extractYoutubeId(url: string): string {
@@ -392,21 +599,30 @@ export function extractYoutubeId(url: string): string {
   return match ? match[1] : '';
 }
 
+/**
+ * Gắn songType đã lưu, hoặc loại đoán được nếu bài cũ chưa chọn.
+ * @param {SongItem} song Bài hát thô từ kho.
+ * @returns {SongItem} Bài hát có songType.
+ */
+function withResolvedSongType(song: SongItem): SongItem {
+  return { ...song, songType: resolveSongType(song) };
+}
+
 export async function getSongs(): Promise<SongItem[]> {
   const { db } = await connectToDatabase();
   if (db) {
     const items = await db.collection<SongItem>('songs').find({}).toArray();
     if (items.length > 0) {
-      return items.map(({ _id, ...rest }: any) => ({
+      return items.map(({ _id, ...rest }: any) => withResolvedSongType({
         ...rest,
         id: rest.id || _id.toString(),
       }));
     } else {
       await db.collection('songs').insertMany(initialSongsData as any);
-      return initialSongsData as SongItem[];
+      return (initialSongsData as SongItem[]).map(withResolvedSongType);
     }
   }
-  return getLocalStore().songs || (initialSongsData as SongItem[]);
+  return (getLocalStore().songs || (initialSongsData as SongItem[])).map(withResolvedSongType);
 }
 
 export async function createSong(item: {
@@ -414,6 +630,7 @@ export async function createSong(item: {
   artists?: string;
   releaseDate?: string;
   youtubeUrl?: string;
+  songType?: string;
 }): Promise<SongItem> {
   const songs = await getSongs();
   const nextStt = (songs.length + 1).toString();
@@ -427,6 +644,7 @@ export async function createSong(item: {
     releaseDate: item.releaseDate?.trim() || new Date().toLocaleDateString('vi-VN'),
     youtubeUrl: item.youtubeUrl?.trim() || '',
     youtubeId: ytId,
+    songType: isSongType(item.songType) ? item.songType : 'SOLO',
   };
 
   const { db } = await connectToDatabase();
@@ -446,6 +664,9 @@ export async function updateSong(id: string, updates: Partial<SongItem>): Promis
   const { _id, id: _ignoreId, ...cleanUpdates } = updates as any;
   if (cleanUpdates.youtubeUrl !== undefined) {
     cleanUpdates.youtubeId = extractYoutubeId(cleanUpdates.youtubeUrl || '');
+  }
+  if (cleanUpdates.songType !== undefined && !isSongType(cleanUpdates.songType)) {
+    delete cleanUpdates.songType;
   }
 
   const { db } = await connectToDatabase();
@@ -583,105 +804,161 @@ export async function deleteShow(id: string): Promise<boolean> {
 
 // ----------------- ADMIN USERS & ACCOUNTS -----------------
 
-export async function getAdminUsers(): Promise<Omit<AdminUser, 'password'>[]> {
+/**
+ * Đọc danh sách admin. Kho trống thì seed admin gốc (mật khẩu đã băm).
+ * Mật khẩu plaintext còn sót được băm lại ngay khi đọc.
+ * @returns {Promise<AdminUser[]>} Danh sách user, kèm hash mật khẩu.
+ */
+async function loadAdminUsers(): Promise<AdminUser[]> {
   const { db } = await connectToDatabase();
-  const defaultAdmin = getDefaultAdminUser();
 
   if (db) {
-    const users = await db.collection<AdminUser>('admin_users').find({}).toArray();
-    if (users.length === 0) {
-      await db.collection('admin_users').insertOne({ ...defaultAdmin });
-      const { password, _id, ...safe } = defaultAdmin as any;
-      return [safe];
+    const docs = await db.collection<AdminUser>('admin_users').find({}).toArray();
+    if (docs.length === 0) {
+      const seed = await buildDefaultAdminUser();
+      await db.collection('admin_users').insertOne({ ...seed });
+      return [seed];
     }
-    return users.map(({ password, _id, ...rest }: any) => ({
-      ...rest,
-      id: rest.id || _id.toString(),
-    }));
+
+    const users: AdminUser[] = [];
+    for (const raw of docs) {
+      const { _id, ...rest } = raw as AdminUser & { _id?: { toString(): string } };
+      const user: AdminUser = {
+        ...rest,
+        id: rest.id || _id?.toString() || '',
+      };
+      if (user.password && !isBcryptHash(user.password)) {
+        const hashed = await hashPassword(user.password);
+        await db.collection('admin_users').updateOne(
+          { username: user.username },
+          { $set: { password: hashed, updatedAt: new Date().toISOString() } }
+        );
+        user.password = hashed;
+      }
+      users.push(user);
+    }
+    return users;
   }
 
   const store = getLocalStore();
   if (!store.users || store.users.length === 0) {
-    store.users = [defaultAdmin];
+    store.users = [await buildDefaultAdminUser()];
+    saveLocalStore(store);
+    return store.users;
+  }
+
+  let changed = false;
+  for (const user of store.users) {
+    if (user.password && !isBcryptHash(user.password)) {
+      user.password = await hashPassword(user.password);
+      changed = true;
+    }
+  }
+  if (changed) {
     saveLocalStore(store);
   }
-  return store.users.map(({ password, ...rest }) => rest);
+  return store.users;
 }
 
-export async function getAdminUserByUsername(username: string): Promise<AdminUser | null> {
+/**
+ * Ghi thêm một tài khoản vào MongoDB hoặc file local.
+ * @param {AdminUser} user Tài khoản, password phải là hash.
+ * @returns {Promise<void>}
+ */
+async function persistAdminUser(user: AdminUser): Promise<void> {
   const { db } = await connectToDatabase();
-  const defaultAdmin = getDefaultAdminUser();
-
   if (db) {
-    const user = await db.collection<AdminUser>('admin_users').findOne({ username });
-    if (user) {
-      const { _id, ...rest } = user as any;
-      return { ...rest, id: rest.id || _id.toString() };
-    }
-    // If database is empty or user is default admin from env, auto-seed default admin
-    if (username === defaultAdmin.username) {
-      await db.collection('admin_users').insertOne({ ...defaultAdmin });
-      return defaultAdmin;
-    }
-    return null;
+    await db.collection('admin_users').insertOne({ ...user });
+    return;
   }
 
   const store = getLocalStore();
-  if (!store.users) store.users = [defaultAdmin];
-  const found = store.users.find((u) => u.username === username);
+  if (!store.users) store.users = [];
+  store.users.push(user);
+  saveLocalStore(store);
+}
+
+/**
+ * Danh sách tài khoản admin, đã bỏ trường password.
+ * @returns {Promise<Omit<AdminUser, 'password'>[]>}
+ */
+export async function getAdminUsers(): Promise<Omit<AdminUser, 'password'>[]> {
+  const users = await loadAdminUsers();
+  return users.map(({ password, ...rest }) => rest);
+}
+
+/**
+ * Tìm admin theo username. Thiếu tài khoản gốc thì seed một lần.
+ * @param {string} username Tên đăng nhập.
+ * @returns {Promise<AdminUser | null>}
+ */
+export async function getAdminUserByUsername(username: string): Promise<AdminUser | null> {
+  const clean = username.trim().toLowerCase();
+  const users = await loadAdminUsers();
+  const found = users.find((user) => user.username.toLowerCase() === clean);
   if (found) return found;
-  if (username === defaultAdmin.username) return defaultAdmin;
+
+  if (clean === getPrimaryAdminUsername()) {
+    const seed = await buildDefaultAdminUser();
+    await persistAdminUser(seed);
+    return seed;
+  }
   return null;
 }
 
+/**
+ * Tạo tài khoản admin/editor. Mật khẩu được băm trước khi lưu.
+ * @param {{ username: string; password: string; name: string; role: 'admin' | 'editor' }} data
+ * @returns {Promise<{ success: boolean; user?: Omit<AdminUser, 'password'>; error?: string }>}
+ */
 export async function createAdminUser(data: {
   username: string;
   password: string;
   name: string;
   role: 'admin' | 'editor';
 }): Promise<{ success: boolean; user?: Omit<AdminUser, 'password'>; error?: string }> {
-  const existing = await getAdminUserByUsername(data.username);
+  const username = data.username.trim().toLowerCase();
+  const existing = await getAdminUserByUsername(username);
   if (existing) {
     return { success: false, error: 'Tên đăng nhập này đã tồn tại trong hệ thống' };
   }
 
   const newUser: AdminUser = {
     id: 'usr-' + Date.now(),
-    username: data.username.trim().toLowerCase(),
-    password: data.password,
-    name: data.name || data.username,
+    username,
+    password: await hashPassword(data.password),
+    name: data.name || username,
     role: data.role || 'admin',
     createdAt: new Date().toISOString(),
   };
 
-  const { db } = await connectToDatabase();
-  if (db) {
-    await db.collection('admin_users').insertOne({ ...newUser });
-  } else {
-    const store = getLocalStore();
-    if (!store.users) store.users = [getDefaultAdminUser()];
-    store.users.push(newUser);
-    saveLocalStore(store);
-  }
-
+  await persistAdminUser(newUser);
   const { password, ...safe } = newUser;
   return { success: true, user: safe };
 }
 
+/**
+ * Đổi mật khẩu và lưu dưới dạng hash bcrypt.
+ * @param {string} username Tài khoản cần đổi.
+ * @param {string} newPassword Mật khẩu mới, plaintext.
+ * @returns {Promise<{ success: boolean; error?: string }>}
+ */
 export async function updateUserPassword(
   username: string,
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
+  const clean = username.trim().toLowerCase();
+  const hashed = await hashPassword(newPassword);
   const { db } = await connectToDatabase();
-  const defaultAdmin = getDefaultAdminUser();
 
   if (db) {
-    const existing = await db.collection<AdminUser>('admin_users').findOne({ username });
+    const existing = await db.collection<AdminUser>('admin_users').findOne({ username: clean });
     if (!existing) {
-      if (username === defaultAdmin.username) {
+      if (clean === getPrimaryAdminUsername()) {
+        const seed = await buildDefaultAdminUser();
         await db.collection('admin_users').insertOne({
-          ...defaultAdmin,
-          password: newPassword,
+          ...seed,
+          password: hashed,
           updatedAt: new Date().toISOString(),
         });
         return { success: true };
@@ -690,24 +967,27 @@ export async function updateUserPassword(
     }
 
     await db.collection('admin_users').updateOne(
-      { username },
-      { $set: { password: newPassword, updatedAt: new Date().toISOString() } }
+      { username: clean },
+      { $set: { password: hashed, updatedAt: new Date().toISOString() } }
     );
     return { success: true };
   }
 
   const store = getLocalStore();
-  if (!store.users) store.users = [defaultAdmin];
-  const idx = store.users.findIndex((u) => u.username === username);
-  if (idx !== -1) {
-    store.users[idx].password = newPassword;
-    store.users[idx].updatedAt = new Date().toISOString();
+  if (!store.users) store.users = [];
+  const index = store.users.findIndex((user) => user.username.toLowerCase() === clean);
+  if (index !== -1) {
+    store.users[index].password = hashed;
+    store.users[index].updatedAt = new Date().toISOString();
     saveLocalStore(store);
     return { success: true };
-  } else if (username === defaultAdmin.username) {
+  }
+
+  if (clean === getPrimaryAdminUsername()) {
+    const seed = await buildDefaultAdminUser();
     store.users.push({
-      ...defaultAdmin,
-      password: newPassword,
+      ...seed,
+      password: hashed,
       updatedAt: new Date().toISOString(),
     });
     saveLocalStore(store);
@@ -717,16 +997,21 @@ export async function updateUserPassword(
   return { success: false, error: 'Không tìm thấy tài khoản' };
 }
 
+/**
+ * Xóa tài khoản phụ. Không cho xóa admin gốc.
+ * @param {string} id Id tài khoản.
+ * @returns {Promise<{ success: boolean; error?: string }>}
+ */
 export async function deleteAdminUser(id: string): Promise<{ success: boolean; error?: string }> {
   const { db } = await connectToDatabase();
-  const defaultAdmin = getDefaultAdminUser();
+  const primaryUsername = getPrimaryAdminUsername();
 
   if (db) {
     const user = await db.collection<AdminUser>('admin_users').findOne({
       $or: [{ id }, { _id: id as any }],
     });
     if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
-    if (user.username === defaultAdmin.username || user.username === 'admin') {
+    if (user.username === primaryUsername || user.username === 'admin') {
       return { success: false, error: 'Không thể xóa tài khoản Quản trị viên chính' };
     }
     await db.collection('admin_users').deleteOne({
@@ -737,12 +1022,12 @@ export async function deleteAdminUser(id: string): Promise<{ success: boolean; e
 
   const store = getLocalStore();
   if (!store.users) return { success: false, error: 'Không tìm thấy danh sách tài khoản' };
-  const user = store.users.find((u) => u.id === id);
+  const user = store.users.find((item) => item.id === id);
   if (!user) return { success: false, error: 'Tài khoản không tồn tại' };
-  if (user.username === defaultAdmin.username || user.username === 'admin') {
+  if (user.username === primaryUsername || user.username === 'admin') {
     return { success: false, error: 'Không thể xóa tài khoản Quản trị viên chính' };
   }
-  store.users = store.users.filter((u) => u.id !== id);
+  store.users = store.users.filter((item) => item.id !== id);
   saveLocalStore(store);
   return { success: true };
 }

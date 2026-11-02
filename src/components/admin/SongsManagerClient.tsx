@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { SongItem, ShowItem } from '@/types';
+import { SongItem, ShowItem, SongType } from '@/types';
+import { SONG_TYPE_OPTIONS, resolveSongType } from '@/lib/songType';
 import {
   Music,
   Plus,
@@ -35,6 +36,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
   const [artists, setArtists] = useState('OSAD');
   const [releaseDate, setReleaseDate] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [songType, setSongType] = useState<SongType>('SOLO');
 
   // Song Edit State
   const [editingSong, setEditingSong] = useState<SongItem | null>(null);
@@ -42,6 +44,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
   const [editSongArtists, setEditSongArtists] = useState('OSAD');
   const [editSongReleaseDate, setEditSongReleaseDate] = useState('');
   const [editSongYoutubeUrl, setEditSongYoutubeUrl] = useState('');
+  const [editSongType, setEditSongType] = useState<SongType>('SOLO');
   const [savingSong, setSavingSong] = useState(false);
 
   // --- SHOWS STATE ---
@@ -84,6 +87,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
     setEditSongArtists(song.artists || 'OSAD');
     setEditSongReleaseDate(song.releaseDate || '');
     setEditSongYoutubeUrl(song.youtubeUrl || '');
+    setEditSongType(resolveSongType(song));
   };
 
   const closeEditSongModal = () => {
@@ -108,6 +112,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
           artists: editSongArtists.trim() || 'OSAD',
           releaseDate: editSongReleaseDate.trim(),
           youtubeUrl: editSongYoutubeUrl.trim(),
+          songType: editSongType,
         }),
       });
 
@@ -194,6 +199,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
           artists: artists || 'OSAD',
           releaseDate: releaseDate || new Date().toLocaleDateString('vi-VN'),
           youtubeUrl,
+          songType,
         }),
       });
 
@@ -204,6 +210,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
         setArtists('OSAD');
         setReleaseDate('');
         setYoutubeUrl('');
+        setSongType('SOLO');
         showToast('Đã thêm bài hát mới vào danh sách!');
       } else {
         alert(data.error || 'Lỗi thêm bài hát');
@@ -407,6 +414,24 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label htmlFor="new-song-type" className="block text-sm font-black uppercase text-gray-700 mb-1">
+                    Phân loại *
+                  </label>
+                  <select
+                    id="new-song-type"
+                    value={songType}
+                    onChange={(event) => setSongType(event.target.value as SongType)}
+                    className="neo-input w-full text-sm bg-white"
+                  >
+                    {SONG_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="block text-xs font-black uppercase text-gray-700 mb-1">
                     Ngày Phát Hành (Format: DD/MM/YYYY)
                   </label>
@@ -488,6 +513,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                       <th className="p-3 w-12 text-center">STT</th>
                       <th className="p-3">Tên Bài Hát</th>
                       <th className="p-3">Nghệ Sĩ</th>
+                      <th className="p-3">Phân loại</th>
                       <th className="p-3">Phát Hành</th>
                       <th className="p-3">YouTube</th>
                       <th className="p-3 text-right">Thao Tác</th>
@@ -496,7 +522,7 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                   <tbody className="divide-y divide-gray-200 text-xs font-bold text-gray-800">
                     {displaySongs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-gray-400 italic">
+                        <td colSpan={7} className="p-8 text-center text-gray-400 italic">
                           Không tìm thấy bài hát nào.
                         </td>
                       </tr>
@@ -513,6 +539,11 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                           </td>
                           <td className="p-3 text-gray-700 font-semibold">
                             {song.artists}
+                          </td>
+                          <td className="p-3 whitespace-nowrap">
+                            <span className="text-sm font-black">
+                              {SONG_TYPE_OPTIONS.find((option) => option.value === song.songType)?.label || 'Solo'}
+                            </span>
                           </td>
                           <td className="p-3 whitespace-nowrap text-gray-500">
                             {song.releaseDate || '—'}
@@ -809,6 +840,24 @@ export default function SongsManagerClient({ initialSongs, initialShows = [] }: 
                   className="neo-input w-full text-sm"
                   placeholder="VD: OSAD ft. ..."
                 />
+              </div>
+
+              <div>
+                <label htmlFor="edit-song-type" className="block text-sm font-black uppercase text-gray-700 mb-1">
+                  Phân loại *
+                </label>
+                <select
+                  id="edit-song-type"
+                  value={editSongType}
+                  onChange={(event) => setEditSongType(event.target.value as SongType)}
+                  className="neo-input w-full text-sm bg-white"
+                >
+                  {SONG_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>

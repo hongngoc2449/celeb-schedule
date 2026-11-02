@@ -1,42 +1,43 @@
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { getAdminUserByUsername } from './db';
+import { getAdminUserByUsername, updateUserPassword } from './db';
+import { isBcryptHash, verifyPassword } from './password';
 
 const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'osad-chutich-mai-secret-2026';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'lena2202';
 
+/**
+ * Kiểm tra đăng nhập bằng hash bcrypt của tài khoản đã lưu.
+ * Không còn chấp nhận mật khẩu hardcode song song với mật khẩu trong kho.
+ * @param {string} username Tên đăng nhập.
+ * @param {string} pass Mật khẩu plaintext.
+ * @returns {Promise<{ success: boolean; user?: { username: string; name: string; role: string } }>}
+ */
 export async function verifyCredentials(
   username: string,
   pass: string
 ): Promise<{ success: boolean; user?: { username: string; name: string; role: string } }> {
   const cleanUser = username.trim().toLowerCase();
+  if (!cleanUser || !pass) return { success: false };
 
-  // 1. Try finding in DB (dynamic accounts + updated passwords in MongoDB)
   try {
     const user = await getAdminUserByUsername(cleanUser);
-    if (user && user.password === pass) {
-      return {
-        success: true,
-        user: { username: user.username, name: user.name, role: user.role },
-      };
+    if (!user || !(await verifyPassword(pass, user.password))) {
+      return { success: false };
     }
-  } catch (e) {
-    console.error('Error verifying admin user in DB:', e);
-  }
 
-  // 2. Fallback to ENV variables (supports both lena2202 and configured ADMIN_PASSWORD)
-  if (
-    cleanUser === ADMIN_USERNAME.toLowerCase() &&
-    (pass === ADMIN_PASSWORD || pass === 'lena2202' || pass === 'osad2026')
-  ) {
+    if (user.password && !isBcryptHash(user.password)) {
+      await updateUserPassword(user.username, pass);
+    }
+
     return {
       success: true,
-      user: { username: ADMIN_USERNAME, name: 'Chủ Tịch Mai (Admin)', role: 'admin' },
+      user: { username: user.username, name: user.name, role: user.role },
     };
+  } catch (error) {
+    console.error('Error verifying admin user:', error);
+    return { success: false };
   }
-
-  return { success: false };
 }
 
 export function signAdminToken(user?: { username: string; name?: string; role?: string }): string {

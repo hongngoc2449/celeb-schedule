@@ -44,6 +44,18 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     location: 'Nút Menu: Thư Viện',
     defaultValue: 'Thư Viện',
   },
+  {
+    id: 'header_nav_corner',
+    section: 'Header & Logo',
+    location: 'Nút góc phải: Góc nhỏ gửi OSAD',
+    defaultValue: 'Góc nhỏ gửi OSAD',
+  },
+  {
+    id: 'header_nav_corner_short',
+    section: 'Header & Logo',
+    location: 'Nút góc phải trên điện thoại',
+    defaultValue: 'Góc nhỏ',
+  },
 
   // 2. Banner Hero
   {
@@ -402,7 +414,237 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     defaultValue: '🍬 Tên Fandom: Ô Mai',
   },
 
-  // 8. Chân Trang (Footer)
+  // 8. Góc nhỏ gửi OSAD
+  {
+    id: 'corner_title',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tiêu đề trang',
+    defaultValue: 'Góc nhỏ gửi OSAD',
+  },
+  {
+    id: 'corner_subtitle',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Dòng mô tả dưới tiêu đề',
+    defaultValue: 'Những lời nhắn gửi tới OSAD. Ảnh và chữ ký hiện cùng trên từng tấm thẻ.',
+  },
+  {
+    id: 'corner_open_form',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút mở khung soạn',
+    defaultValue: 'Viết lời nhắn',
+  },
+  {
+    id: 'corner_close_form',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút đóng khung soạn',
+    defaultValue: 'Đóng khung soạn',
+  },
+  {
+    id: 'corner_name_label',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn ô tên',
+    defaultValue: 'Tên hiển thị',
+  },
+  {
+    id: 'corner_name_placeholder',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Gợi ý ô tên',
+    defaultValue: 'Tên bạn muốn hiện trên thẻ',
+  },
+  {
+    id: 'corner_photo_label',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn ảnh kèm theo',
+    defaultValue: 'Ảnh kèm theo',
+  },
+  {
+    id: 'corner_photo_button',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút chọn ảnh',
+    defaultValue: 'Chọn ảnh',
+  },
+  {
+    id: 'corner_text_label',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn ô lời nhắn',
+    defaultValue: 'Lời nhắn',
+  },
+  {
+    id: 'corner_text_placeholder',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Gợi ý ô lời nhắn',
+    defaultValue: 'Viết vài dòng gửi OSAD',
+  },
+  {
+    id: 'corner_signature_label',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn chữ ký',
+    defaultValue: 'Chữ ký',
+  },
+  {
+    id: 'corner_signature_draw',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút ký bằng chuột',
+    defaultValue: 'Ký bằng chuột',
+  },
+  {
+    id: 'corner_signature_upload',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút up ảnh chữ ký',
+    defaultValue: 'Up ảnh chữ ký',
+  },
+  {
+    id: 'corner_signature_clear',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút xóa nét chữ ký',
+    defaultValue: 'Xóa nét',
+  },
+  {
+    id: 'corner_signature_file',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút chọn file chữ ký',
+    defaultValue: 'Chọn ảnh chữ ký',
+  },
+  {
+    id: 'corner_submit',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút gửi lời nhắn',
+    defaultValue: 'Gửi lời nhắn',
+  },
+  {
+    id: 'corner_submitting',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút gửi khi đang xử lý',
+    defaultValue: 'Đang gửi',
+  },
+  {
+    id: 'corner_sending_notice',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Thông báo đang gửi',
+    defaultValue: 'Đang gửi lời nhắn...',
+  },
+  {
+    id: 'corner_sent_notice',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Thông báo đã gửi',
+    defaultValue: 'Đã gửi lời nhắn.',
+  },
+  {
+    id: 'corner_empty',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Dòng khi chưa có lời nhắn',
+    defaultValue: 'Chưa có lời nhắn nào. Bấm Viết lời nhắn để gửi tấm thẻ đầu tiên.',
+  },
+  {
+    id: 'corner_delete',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút xóa lời nhắn của admin',
+    defaultValue: 'Xóa',
+  },
+  {
+    id: 'corner_deleting',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút xóa khi đang xử lý',
+    defaultValue: 'Đang xóa',
+  },
+  {
+    id: 'corner_required_notice',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Báo thiếu tên hoặc lời nhắn',
+    defaultValue: 'Cần có tên và lời nhắn.',
+  },
+  {
+    id: 'corner_send_error',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Báo không gửi được',
+    defaultValue: 'Không gửi được lời nhắn',
+  },
+  {
+    id: 'corner_delete_confirm',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nội dung popup xác nhận xóa',
+    defaultValue: 'Xóa lời nhắn này? Thao tác không hoàn tác được.',
+  },
+  {
+    id: 'corner_delete_confirm_title',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tiêu đề popup xác nhận xóa',
+    defaultValue: 'Xác nhận xóa',
+  },
+  {
+    id: 'corner_delete_cancel',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút hủy xóa lời nhắn',
+    defaultValue: 'Hủy',
+  },
+  {
+    id: 'corner_delete_error',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Báo không xóa được',
+    defaultValue: 'Không xóa được lời nhắn',
+  },
+  {
+    id: 'corner_game_button',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút mở minigame',
+    defaultValue: 'Chơi xếp ảnh',
+  },
+  {
+    id: 'corner_game_title',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tiêu đề popup minigame',
+    defaultValue: 'Xếp ảnh',
+  },
+  {
+    id: 'corner_game_hint',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Hướng dẫn minigame',
+    defaultValue: 'Thả phía trên vạch. Cùng size ghép. Tràn vạch thì thua.',
+  },
+  {
+    id: 'corner_game_score',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn điểm minigame',
+    defaultValue: 'Điểm',
+  },
+  {
+    id: 'corner_game_close',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút đóng minigame',
+    defaultValue: 'Đóng',
+  },
+  {
+    id: 'corner_game_reset',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nút chơi lại minigame',
+    defaultValue: 'Chơi lại',
+  },
+  {
+    id: 'corner_game_over',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Thông báo thua minigame',
+    defaultValue: 'Tràn vạch rồi!',
+  },
+  {
+    id: 'corner_game_leaderboard',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tiêu đề bảng top điểm',
+    defaultValue: 'Top 10',
+  },
+  {
+    id: 'corner_game_name',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Placeholder tên lưu điểm',
+    defaultValue: 'Tên của bạn',
+  },
+  {
+    id: 'corner_game_empty_board',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Bảng điểm trống',
+    defaultValue: 'Chưa có điểm',
+  },
+
+  // 9. Chân Trang (Footer)
   {
     id: 'footer_quote',
     section: 'Chân Trang (Footer)',
@@ -414,6 +656,12 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     section: 'Chân Trang (Footer)',
     location: 'Dòng bản quyền chân trang',
     defaultValue: '© 2026 Mai Quang Nam (OSAD - Chủ Tịch Mai) • Bảo trợ kíp nổ: OwO',
+  },
+  {
+    id: 'footer_link_corner',
+    section: 'Chân Trang (Footer)',
+    location: 'Liên kết Góc nhỏ gửi OSAD',
+    defaultValue: 'Góc nhỏ gửi OSAD',
   },
 ];
 

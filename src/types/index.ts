@@ -71,6 +71,7 @@ export interface CelebrityProfile {
     spotify: string;
   };
   siteTexts?: Record<string, string>;
+  stackImages?: string[];
 }
 
 export interface SiteTextDefinition {
@@ -88,6 +89,24 @@ export interface GalleryItem {
   date?: string;
 }
 
+export type SongType = 'SOLO' | 'COLLAB' | 'ATVNCG';
+
+export interface FanMessage {
+  id: string;
+  authorName: string;
+  text: string;
+  imageUrl?: string;
+  signatureUrl?: string;
+  createdAt: string;
+}
+
+export interface StackScore {
+  id: string;
+  authorName: string;
+  score: number;
+  createdAt: string;
+}
+
 export interface SongItem {
   id: string;
   stt: string;
@@ -96,6 +115,7 @@ export interface SongItem {
   artists: string;
   youtubeUrl: string;
   youtubeId: string;
+  songType?: SongType;
 }
 
 export type ShowCategory = 'YOUTUBE' | 'ARTICLE' | 'SEARCH';

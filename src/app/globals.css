@@ -44,7 +44,7 @@ body {
   font-family: var(--font-cocogoose), system-ui, -apple-system, sans-serif;
   background-color: #faf7f2;
   color: #141414;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Neo-Brutalism Custom Components */
@@ -134,4 +134,15 @@ body {
   background-image: 
     linear-gradient(#e5e7eb 1px, transparent 1px);
   background-size: 100% 32px;
+}
+
+/* Header mobile cao 2 hàng, nên anchor không bị chui xuống dưới header */
+section[id] {
+  scroll-margin-top: 9.5rem;
+}
+
+@media (min-width: 768px) {
+  section[id] {
+    scroll-margin-top: 6rem;
+  }
 }

@@ -14,6 +14,7 @@
    - **Discography:** Danh sách các bản hit triệu view (Người Âm Phủ, Củ Lạc, Em Ngủ Chưa?...).
    - **Thư Viện Ảnh (Gallery):** Lưới ảnh polaroid kèm tính năng phóng to (Lightbox).
    - **Booking & Contact:** Thẻ thông tin quản lý, copy email nhanh và form gửi lời mời hợp tác trực tuyến.
+   - **Góc nhỏ gửi OSAD (`/goc-nho`):** Lời nhắn công khai dạng card. Người xem gửi tên, nội dung, ảnh và chữ ký (vẽ hoặc upload). Nút Admin không còn trên trang public; quản trị vào bằng đường dẫn `/admin`. Admin đăng nhập mới xóa được lời nhắn. Có minigame xếp ảnh (sân hẹp 320×400): thả random size 1–3 (cooldown ~0.9s giữa các lần thả), cùng size ghép lớn hơn, hai size cuối biến mất. Gravity/nảy mạnh hơn; hình đứng yên vượt vạch thả → vùng đỏ + đếm ngược ~2.5s rồi thua. Bên phải có bảng Top 10 điểm (lưu qua `/api/stack-scores`). Admin xóa lời nhắn qua popup xác nhận (không dùng `confirm` trình duyệt). Admin đổi 6 ảnh hình tròn tại trang Cập Nhật Profile.
 
 2. **Trang Quản Trị (Admin Portal - `/admin`):**
    - **Xác thực bảo mật:** Đăng nhập JWT an toàn qua `/admin/login`.
@@ -36,8 +37,8 @@ npm run dev
 Mở trình duyệt truy cập:
 - **Trang chủ:** [http://localhost:3000](http://localhost:3000)
 - **Trang Admin:** [http://localhost:3000/admin](http://localhost:3000/admin)
-  - **Tài khoản:** `admin`
-  - **Mật khẩu:** `osad2026`
+  - **Tài khoản:** `admin` (hoặc `ADMIN_USERNAME`)
+  - **Mật khẩu:** mật khẩu đã lưu của tài khoản đó. Kho mới lấy từ `ADMIN_PASSWORD`. Mật khẩu được băm bcrypt, không còn mật khẩu hardcode dự phòng.
 
 ---
 

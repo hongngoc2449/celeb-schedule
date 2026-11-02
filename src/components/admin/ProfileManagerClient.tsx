@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CelebrityProfile } from '@/types';
 import { User, Save, Check, Globe, Heart } from 'lucide-react';
 import SiteTextsExcelTable from './SiteTextsExcelTable';
+import StackImageManager from './StackImageManager';
 
 export default function ProfileManagerClient({ initialProfile }: { initialProfile: CelebrityProfile }) {
   const [profile, setProfile] = useState<CelebrityProfile>(initialProfile);
@@ -290,6 +291,11 @@ export default function ProfileManagerClient({ initialProfile }: { initialProfil
           </button>
         </div>
       </form>
+
+      <StackImageManager
+        initialImages={profile.stackImages}
+        onSaved={(stackImages) => setProfile({ ...profile, stackImages })}
+      />
 
       {/* FORM 2: BẢNG DẠNG EXCEL LIST TOÀN BỘ CÁC TEXT TRONG TRANG CHO PHÉP EDIT */}
       <SiteTextsExcelTable

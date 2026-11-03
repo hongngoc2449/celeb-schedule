@@ -10,8 +10,8 @@ interface StackImageManagerProps {
 }
 
 /**
- * Lưu 6 ảnh hình tròn vào profile. Ô trống được lưu là chuỗi rỗng để dùng ảnh mặc định.
- * @param {string[]} images Danh sách đúng 6 đường dẫn.
+ * Lưu 10 ảnh hình tròn vào profile. Ô trống được lưu là chuỗi rỗng để dùng ảnh mặc định.
+ * @param {string[]} images Danh sách đúng 10 đường dẫn.
  * @returns {Promise<void>}
  */
 async function saveStackImages(images: string[]): Promise<void> {
@@ -82,9 +82,9 @@ export default function StackImageManager({ initialImages, onSaved }: StackImage
         Ảnh hình tròn minigame
       </h3>
       <p className="mt-2 text-sm font-bold text-gray-600">
-        Size 1 là hình nhỏ nhất được thả. Size 6 là hình lớn nhất, hai hình này chạm nhau thì biến mất.
+        Size 1 là hình nhỏ nhất được thả. Size 10 là hình lớn nhất, hai hình này chạm nhau thì biến mất.
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {images.map((src, index) => (
           <div key={index} className="flex flex-col items-center gap-2">
             <img

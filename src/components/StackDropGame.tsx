@@ -12,6 +12,7 @@ import {
   StackPiece,
   advanceStack,
   createStackPiece,
+  dropYForSize,
   hasDangerPiece,
   randomDropSize,
   readStackSession,
@@ -20,7 +21,18 @@ import {
 } from '@/lib/stackDropGame';
 import { StackScore } from '@/types';
 
-const RING_COLORS = ['#f7b7c6', '#f4a0b5', '#ee7f9a', '#e56b8a', '#d45278', '#b83b62'];
+const RING_COLORS = [
+  '#f7b7c6',
+  '#f4a0b5',
+  '#ee7f9a',
+  '#e56b8a',
+  '#d45278',
+  '#c9446c',
+  '#b83b62',
+  '#a83258',
+  '#96284d',
+  '#841f43',
+];
 const NAME_STORAGE_KEY = 'osad-stack-player-name';
 
 interface StackDropGameProps {
@@ -121,14 +133,27 @@ export default function StackDropGame({
   const [nextSize, setNextSize] = useState(initialNextSize);
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
+    const scrollY = window.scrollY;
+    const previous = {
+      overflow: document.body.style.overflow,
+      position: document.body.style.position,
+      top: document.body.style.top,
+      width: document.body.style.width,
+    };
     document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previous.overflow;
+      document.body.style.position = previous.position;
+      document.body.style.top = previous.top;
+      document.body.style.width = previous.width;
+      window.scrollTo(0, scrollY);
       window.removeEventListener('keydown', onKeyDown);
     };
   }, [onClose]);
@@ -312,10 +337,20 @@ export default function StackDropGame({
 
     const pointer = pointerRef.current;
     const readyToDrop = now - lastDropRef.current >= STACK_DROP_COOLDOWN_MS;
-    if (!gameOverRef.current && readyToDrop && pointer.inside && pointer.y <= STACK_DROP_LINE_Y) {
+    if (!gameOverRef.current && readyToDrop && pointer.inside) {
+      const sizeIndex = nextSizeRef.current;
+      const radius = STACK_RADII[sizeIndex];
       drawPiece(
         context,
-        { id: 0, x: pointer.x, y: pointer.y, vx: 0, vy: 0, sizeIndex: nextSizeRef.current, bornAt: 0 },
+        {
+          id: 0,
+          x: Math.max(radius, Math.min(STACK_BOARD_WIDTH - radius, pointer.x)),
+          y: dropYForSize(sizeIndex),
+          vx: 0,
+          vy: 0,
+          sizeIndex,
+          bornAt: 0,
+        },
         imagesRef.current,
         0.45
       );
@@ -337,7 +372,7 @@ export default function StackDropGame({
 
   function handlePointerMove(event: ReactPointerEvent<HTMLCanvasElement>) {
     const point = toBoardPoint(event);
-    pointerRef.current = { ...point, inside: point.y <= STACK_DROP_LINE_Y };
+    pointerRef.current = { ...point, inside: true };
   }
 
   function handlePointerLeave() {
@@ -349,7 +384,6 @@ export default function StackDropGame({
     const now = performance.now();
     if (now - lastDropRef.current < STACK_DROP_COOLDOWN_MS) return;
     const point = toBoardPoint(event);
-    if (point.y > STACK_DROP_LINE_Y) return;
     const piece = createStackPiece(nextIdRef.current, point.x, point.y, nextSizeRef.current, now);
     nextIdRef.current += 1;
     const upcoming = randomDropSize();
@@ -379,120 +413,129 @@ export default function StackDropGame({
   }
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-[#4a2430]/35 px-3 py-4" onClick={onClose}>
-      <div
-        className="w-full max-w-5xl rounded-3xl border border-[#f3c6d0] bg-[#fffdfb] p-4 shadow-[0_20px_50px_rgba(120,50,70,0.2)] sm:p-6"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className="relative mb-2">
-          <h2 className="text-center text-xl font-black text-[#6d2940]">{title}</h2>
-          <button type="button" onClick={onClose} className="absolute right-0 top-0 inline-flex items-center rounded-full bg-[#ffe4ea] px-3 py-2 text-sm font-bold text-[#7a3144]">
-            <X className="mr-1 h-4 w-4" />
-            {closeLabel}
-          </button>
-        </div>
-        <p className="text-center text-4xl font-black leading-none text-[#e56b8a] sm:text-5xl">{score}</p>
-        <p className="mb-3 text-center text-sm font-bold text-[#a06b7c]">{scoreLabel}</p>
-        <p className="mx-auto mb-3 max-w-xl text-center text-sm font-semibold text-[#8a5364]">{hint}</p>
+    <div
+      className="fixed inset-0 z-[90] overflow-y-auto overscroll-contain bg-[#4a2430]/35 [-webkit-overflow-scrolling:touch]"
+      onClick={onClose}
+    >
+      <div className="flex min-h-full items-start justify-center px-3 py-4 sm:items-center sm:py-6">
+        <div
+          className="w-full max-w-5xl rounded-3xl border border-[#f3c6d0] bg-[#fffdfb] p-4 shadow-[0_20px_50px_rgba(120,50,70,0.2)] sm:p-6"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="relative mb-2">
+            <h2 className="text-center text-xl font-black text-[#6d2940]">{title}</h2>
+            <button type="button" onClick={onClose} className="absolute right-0 top-0 inline-flex items-center rounded-full bg-[#ffe4ea] px-3 py-2 text-sm font-bold text-[#7a3144]">
+              <X className="mr-1 h-4 w-4" />
+              {closeLabel}
+            </button>
+          </div>
+          <p className="text-center text-4xl font-black leading-none text-[#e56b8a] sm:text-5xl">{score}</p>
+          <p className="mb-3 text-center text-sm font-bold text-[#a06b7c]">{scoreLabel}</p>
+          <p className="mx-auto mb-3 max-w-xl text-center text-sm font-semibold text-[#8a5364]">{hint}</p>
 
-        <div className="flex flex-col items-stretch gap-4 md:flex-row md:items-start md:justify-center">
-          <div className="relative mx-auto w-full max-w-[320px] shrink-0 md:mx-0">
-            <div className="mb-2 flex items-center justify-center gap-3 rounded-2xl border border-[#f3c6d0] bg-white px-3 py-2">
-              <span className="text-sm font-bold text-[#a06b7c]">{nextLabel}</span>
-              <div
-                className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-[3px]"
-                style={{
-                  borderColor: RING_COLORS[nextSize],
-                  opacity: dropReady && !gameOver ? 1 : 0.45,
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={images[nextSize] || images[0]}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <span className="text-sm font-black text-[#6d2940]">Size {nextSize + 1}</span>
-            </div>
-            <canvas
-              ref={canvasRef}
-              width={STACK_BOARD_WIDTH}
-              height={STACK_BOARD_HEIGHT}
-              onPointerDown={handlePointerDown}
-              onPointerMove={handlePointerMove}
-              onPointerLeave={handlePointerLeave}
-              className={`mx-auto block h-auto w-full touch-none rounded-3xl border border-[#f3c6d0] bg-[#fff7f4] ${
-                dropReady && !gameOver ? 'cursor-crosshair' : 'cursor-wait'
-              }`}
-            />
-            {gameOver && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl bg-[#4a2430]/55 px-4">
-                <p className="text-center text-2xl font-black text-white">{gameOverLabel}</p>
-                <p className="mt-2 text-center text-lg font-bold text-[#ffe4ea]">
-                  {scoreLabel}: {score}
-                </p>
-                {savingScore && <p className="mt-1 text-sm font-semibold text-[#ffe4ea]">Đang lưu điểm...</p>}
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="mt-4 rounded-full border border-white/40 bg-white px-4 py-2 text-sm font-bold text-[#7a3144]"
+          <div className="flex flex-col items-stretch gap-4 md:flex-row md:items-start md:justify-center">
+            <div className="relative mx-auto w-full max-w-[320px] shrink-0 md:mx-0">
+              <div className="mb-2 flex items-center justify-center gap-3 rounded-2xl border border-[#f3c6d0] bg-white px-3 py-2">
+                <span className="text-sm font-bold text-[#a06b7c]">{nextLabel}</span>
+                <div
+                  className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-[3px]"
+                  style={{
+                    borderColor: RING_COLORS[nextSize],
+                    opacity: dropReady && !gameOver ? 1 : 0.45,
+                  }}
                 >
-                  {resetLabel}
-                </button>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={images[nextSize] || images[0]}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <span className="text-sm font-black text-[#6d2940]">Size {nextSize + 1}</span>
               </div>
-            )}
-            {!gameOver && warningLeftMs > 0 && (
-              <p className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 rounded-full bg-[#dc2846] px-3 py-1 text-sm font-bold text-white">
-                {(warningLeftMs / 1000).toFixed(1)}s
-              </p>
-            )}
+              <div className="relative">
+                <canvas
+                  ref={canvasRef}
+                  width={STACK_BOARD_WIDTH}
+                  height={STACK_BOARD_HEIGHT}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerLeave={handlePointerLeave}
+                  className={`mx-auto block h-auto w-full touch-none rounded-3xl border border-[#f3c6d0] bg-[#fff7f4] ${
+                    dropReady && !gameOver ? 'cursor-crosshair' : 'cursor-wait'
+                  }`}
+                />
+                {gameOver && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-3xl bg-[#4a2430]/55 px-4">
+                    <p className="text-center text-2xl font-black text-white">{gameOverLabel}</p>
+                    <p className="mt-2 text-center text-lg font-bold text-[#ffe4ea]">
+                      {scoreLabel}: {score}
+                    </p>
+                    {savingScore && <p className="mt-1 text-sm font-semibold text-[#ffe4ea]">Đang lưu điểm...</p>}
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="mt-4 rounded-full border border-white/40 bg-white px-4 py-2 text-sm font-bold text-[#7a3144]"
+                    >
+                      {resetLabel}
+                    </button>
+                  </div>
+                )}
+                {!gameOver && warningLeftMs > 0 && (
+                  <p className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 rounded-full bg-[#dc2846] px-3 py-1 text-sm font-bold text-white">
+                    {(warningLeftMs / 1000).toFixed(1)}s
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <aside className="mx-auto flex w-full max-w-[320px] flex-col rounded-3xl border border-[#f3c6d0] bg-white p-3 md:mx-0 md:max-h-[min(520px,70vh)] md:max-w-[260px] md:self-stretch">
+              <h3 className="mb-2 shrink-0 text-center text-base font-black text-[#6d2940]">{leaderboardLabel}</h3>
+              <label className="mb-3 block shrink-0">
+                <span className="sr-only">{namePlaceholder}</span>
+                <input
+                  type="text"
+                  value={playerName}
+                  maxLength={24}
+                  onChange={(event) => setPlayerName(event.target.value)}
+                  placeholder={namePlaceholder}
+                  className="w-full rounded-full border border-[#f0c4ce] bg-[#fff7f4] px-3 py-2 text-sm font-semibold text-[#6d2940] outline-none focus:border-[#e56b8a]"
+                />
+              </label>
+              <div className="max-h-[220px] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch] md:max-h-none md:min-h-0 md:flex-1">
+                {leaders.length === 0 ? (
+                  <p className="py-6 text-center text-sm font-semibold text-[#a06b7c]">{emptyBoardLabel}</p>
+                ) : (
+                  <table className="w-full border-collapse text-left text-sm">
+                    <thead className="sticky top-0 bg-white">
+                      <tr className="border-b border-[#f3c6d0] text-[#a06b7c]">
+                        <th className="w-8 py-1 font-bold">#</th>
+                        <th className="py-1 font-bold">Tên</th>
+                        <th className="py-1 text-right font-bold">{scoreLabel}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaders.map((row, index) => (
+                        <tr key={row.id} className="border-b border-[#ffe8ee] last:border-0">
+                          <td className="py-2 font-bold text-[#e56b8a]">{index + 1}</td>
+                          <td className="max-w-[120px] truncate py-2 font-semibold text-[#6d2940]" title={row.authorName}>
+                            {row.authorName}
+                          </td>
+                          <td className="py-2 text-right font-black text-[#6d2940]">{row.score}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </aside>
           </div>
 
-          <aside className="mx-auto w-full max-w-[320px] rounded-3xl border border-[#f3c6d0] bg-white p-3 md:mx-0 md:max-w-[260px] md:self-stretch">
-            <h3 className="mb-2 text-center text-base font-black text-[#6d2940]">{leaderboardLabel}</h3>
-            <label className="mb-3 block">
-              <span className="sr-only">{namePlaceholder}</span>
-              <input
-                type="text"
-                value={playerName}
-                maxLength={24}
-                onChange={(event) => setPlayerName(event.target.value)}
-                placeholder={namePlaceholder}
-                className="w-full rounded-full border border-[#f0c4ce] bg-[#fff7f4] px-3 py-2 text-sm font-semibold text-[#6d2940] outline-none focus:border-[#e56b8a]"
-              />
-            </label>
-            {leaders.length === 0 ? (
-              <p className="py-6 text-center text-sm font-semibold text-[#a06b7c]">{emptyBoardLabel}</p>
-            ) : (
-              <table className="w-full border-collapse text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[#f3c6d0] text-[#a06b7c]">
-                    <th className="w-8 py-1 font-bold">#</th>
-                    <th className="py-1 font-bold">Tên</th>
-                    <th className="py-1 text-right font-bold">{scoreLabel}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaders.map((row, index) => (
-                    <tr key={row.id} className="border-b border-[#ffe8ee] last:border-0">
-                      <td className="py-2 font-bold text-[#e56b8a]">{index + 1}</td>
-                      <td className="max-w-[120px] truncate py-2 font-semibold text-[#6d2940]" title={row.authorName}>
-                        {row.authorName}
-                      </td>
-                      <td className="py-2 text-right font-black text-[#6d2940]">{row.score}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </aside>
-        </div>
-
-        <div className="mt-3 text-center">
-          <button type="button" onClick={handleReset} className="rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144]">
-            {resetLabel}
-          </button>
+          <div className="mt-3 text-center">
+            <button type="button" onClick={handleReset} className="rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144]">
+              {resetLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -98,6 +98,12 @@ export interface FanMessage {
   imageUrl?: string;
   signatureUrl?: string;
   createdAt: string;
+  /** Admin ghim lên đầu trang. */
+  pinned?: boolean;
+  /** Thời điểm ghim gần nhất — dùng sắp xếp giữa các card đã ghim. */
+  pinnedAt?: string;
+  /** Số reaction tim công khai. */
+  heartCount?: number;
 }
 
 export interface StackScore {

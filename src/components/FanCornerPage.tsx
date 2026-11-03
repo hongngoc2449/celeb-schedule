@@ -2,7 +2,7 @@
 
 import { FormEvent, PointerEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CircleDot, Heart, ImagePlus, PenLine, Send, Trash2, Upload } from 'lucide-react';
+import { CircleDot, Heart, ImagePlus, PenLine, Pin, PinOff, Send, Trash2, Upload } from 'lucide-react';
 import StackDropGame from '@/components/StackDropGame';
 import { FanMessage } from '@/types';
 import { getSiteText } from '@/lib/siteTexts';
@@ -15,6 +15,52 @@ interface FanCornerPageProps {
   canDelete: boolean;
   siteTexts?: Record<string, string>;
   stackImages: string[];
+}
+
+const REACTED_STORAGE_KEY = 'osad-fan-reacted-ids';
+
+/**
+ * Ghim trước, rồi mới đến lời nhắn thường (mới nhất trước).
+ * @param {FanMessage[]} messages Danh sách hiện tại.
+ * @returns {FanMessage[]}
+ */
+function sortCornerMessages(messages: FanMessage[]): FanMessage[] {
+  return [...messages].sort((left, right) => {
+    const leftPinned = Boolean(left.pinned);
+    const rightPinned = Boolean(right.pinned);
+    if (leftPinned !== rightPinned) return leftPinned ? -1 : 1;
+    if (leftPinned && rightPinned) {
+      return (right.pinnedAt || '').localeCompare(left.pinnedAt || '');
+    }
+    return right.createdAt.localeCompare(left.createdAt);
+  });
+}
+
+/**
+ * Đọc danh sách id đã thả tim trên máy này.
+ * @returns {Set<string>}
+ */
+function readReactedIds(): Set<string> {
+  try {
+    const raw = window.localStorage.getItem(REACTED_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? new Set(parsed.filter((id) => typeof id === 'string')) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Ghi danh sách id đã thả tim.
+ * @param {Set<string>} ids Tập id.
+ */
+function writeReactedIds(ids: Set<string>) {
+  try {
+    window.localStorage.setItem(REACTED_STORAGE_KEY, JSON.stringify([...ids]));
+  } catch {
+    /* ignore */
+  }
 }
 
 /**
@@ -68,6 +114,9 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
   const [signaturePreview, setSignaturePreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState('');
+  const [pinningId, setPinningId] = useState('');
+  const [reactingId, setReactingId] = useState('');
+  const [reactedIds, setReactedIds] = useState<Set<string>>(new Set());
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [gameOpen, setGameOpen] = useState(false);
@@ -75,8 +124,12 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
   const [notice, setNotice] = useState<{ tone: NoticeTone; message: string } | null>(null);
 
   useEffect(() => {
-    setItems(messages);
+    setItems(sortCornerMessages(messages));
   }, [messages]);
+
+  useEffect(() => {
+    setReactedIds(readReactedIds());
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -213,6 +266,78 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
   }
 
   /**
+   * Thả tim / bỏ tim một lời nhắn (mỗi máy một lần / card).
+   * @param {FanMessage} message Card cần reaction.
+   */
+  async function toggleReact(message: FanMessage) {
+    const liked = !reactedIds.has(message.id);
+    setReactingId(message.id);
+    try {
+      const response = await fetch(`/api/messages/${message.id}/react`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ liked }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || t('corner_react_error'));
+      const updated = data.message as FanMessage;
+      setItems((current) =>
+        current.map((item) =>
+          item.id === message.id ? { ...item, heartCount: updated.heartCount ?? 0 } : item
+        )
+      );
+      setReactedIds((current) => {
+        const next = new Set(current);
+        if (liked) next.add(message.id);
+        else next.delete(message.id);
+        writeReactedIds(next);
+        return next;
+      });
+    } catch (error) {
+      console.error('React fan message failed:', error);
+      setNotice({
+        tone: 'error',
+        message: error instanceof Error ? error.message : t('corner_react_error'),
+      });
+    } finally {
+      setReactingId('');
+    }
+  }
+
+  /**
+   * Ghim / bỏ ghim một card (admin).
+   * @param {FanMessage} message Card cần đổi trạng thái.
+   */
+  async function togglePin(message: FanMessage) {
+    const nextPinned = !message.pinned;
+    setPinningId(message.id);
+    try {
+      const response = await fetch(`/api/messages/${message.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinned: nextPinned }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || t('corner_pin_error'));
+      const updated = data.message as FanMessage;
+      setItems((current) =>
+        sortCornerMessages(
+          current.map((item) => (item.id === message.id ? { ...item, ...updated } : item))
+        )
+      );
+      router.refresh();
+    } catch (error) {
+      console.error('Pin fan message failed:', error);
+      setNotice({
+        tone: 'error',
+        message: error instanceof Error ? error.message : t('corner_pin_error'),
+      });
+    } finally {
+      setPinningId('');
+    }
+  }
+
+  /**
    * Xóa lời nhắn sau khi admin bấm xác nhận trên popup.
    */
   async function confirmDelete() {
@@ -246,6 +371,107 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
 
   const softField = 'mt-1 w-full rounded-2xl border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-semibold text-[#4a2430] outline-none focus:border-[#e58aa0]';
   const softButton = 'inline-flex items-center rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144]';
+  const pinnedItems = items.filter((item) => item.pinned);
+  const feedItems = items.filter((item) => !item.pinned);
+
+  /**
+   * Render một card lời nhắn (ghim hoặc thường).
+   * @param {FanMessage} message Nội dung card.
+   * @returns {JSX.Element}
+   */
+  function renderMessageCard(message: FanMessage) {
+    return (
+      <article
+        key={message.id}
+        className={`mb-4 flex w-full break-inside-avoid flex-col rounded-3xl border p-4 shadow-[0_14px_34px_rgba(180,90,120,0.12)] ${
+          message.pinned
+            ? 'border-[#e56b8a] bg-[#fff5f7]'
+            : 'border-[#f3c6d0] bg-[#fffdfb]/90'
+        }`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-base font-black text-[#6d2940]">{message.authorName}</h2>
+              {message.pinned && (
+                <span
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#e56b8a] text-white"
+                  title={t('corner_pinned_badge')}
+                  aria-label={t('corner_pinned_badge')}
+                >
+                  <Pin className="h-3.5 w-3.5" />
+                </span>
+              )}
+            </div>
+            <p className="text-sm font-semibold text-[#a06b7c]">
+              {new Date(message.createdAt).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })}
+            </p>
+          </div>
+        </div>
+        {message.imageUrl && (
+          <img src={message.imageUrl} alt="" className="mt-3 h-auto w-full rounded-2xl object-contain" />
+        )}
+        <p className="mt-3 whitespace-pre-wrap break-words text-sm font-semibold text-[#4a2430]">{message.text}</p>
+        {message.signatureUrl && (
+          <img
+            src={message.signatureUrl}
+            alt={`Chữ ký của ${message.authorName}`}
+            className="mt-3 max-h-20 w-full rounded-2xl bg-[#fff5f2] object-contain"
+          />
+        )}
+        <div className="mt-4 flex items-end justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap gap-2">
+            {canDelete && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => togglePin(message)}
+                  disabled={pinningId === message.id || deletingId === message.id}
+                  className="inline-flex items-center rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144] disabled:opacity-60"
+                >
+                  {message.pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                  <span className="ml-2">
+                    {pinningId === message.id
+                      ? t('corner_pinning')
+                      : message.pinned
+                        ? t('corner_unpin')
+                        : t('corner_pin')}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => askDelete(message.id)}
+                  disabled={deletingId === message.id || pinningId === message.id}
+                  className="inline-flex items-center rounded-full bg-[#e56b8a] px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span className="ml-2">{deletingId === message.id ? t('corner_deleting') : t('corner_delete')}</span>
+                </button>
+              </>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => toggleReact(message)}
+            disabled={reactingId === message.id}
+            title={t('corner_react')}
+            aria-label={t('corner_react')}
+            aria-pressed={reactedIds.has(message.id)}
+            className={`ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-2 text-sm font-bold disabled:opacity-60 ${
+              reactedIds.has(message.id)
+                ? 'border-[#e56b8a] bg-[#ffe4ea] text-[#e56b8a]'
+                : 'border-[#f0c4ce] bg-white text-[#a06b7c]'
+            }`}
+          >
+            <Heart
+              className={`h-4 w-4 ${reactedIds.has(message.id) ? 'fill-[#e56b8a] text-[#e56b8a]' : 'text-[#e56b8a]'}`}
+            />
+            <span>{message.heartCount || 0}</span>
+          </button>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-8 py-8">
@@ -397,39 +623,21 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
           {t('corner_empty')}
         </div>
       ) : (
-        <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
-          {items.map((message) => (
-            <article key={message.id} className="mb-4 flex w-full break-inside-avoid flex-col rounded-3xl border border-[#f3c6d0] bg-[#fffdfb]/90 p-4 shadow-[0_14px_34px_rgba(180,90,120,0.12)]">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-black text-[#6d2940]">{message.authorName}</h2>
-                  <p className="text-sm font-semibold text-[#a06b7c]">
-                    {new Date(message.createdAt).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })}
-                  </p>
-                </div>
-                <Heart className="h-5 w-5 shrink-0 fill-[#f7b7c6] text-[#e56b8a]" />
+        <>
+          {pinnedItems.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-3 text-base font-black text-[#6d2940]">{t('corner_pinned_section')}</h2>
+              <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
+                {pinnedItems.map((message) => renderMessageCard(message))}
               </div>
-              {message.imageUrl && (
-                <img src={message.imageUrl} alt="" className="mt-3 h-auto w-full rounded-2xl object-contain" />
-              )}
-              <p className="mt-3 whitespace-pre-wrap break-words text-sm font-semibold text-[#4a2430]">{message.text}</p>
-              {message.signatureUrl && (
-                <img src={message.signatureUrl} alt={`Chữ ký của ${message.authorName}`} className="mt-3 max-h-20 w-full rounded-2xl bg-[#fff5f2] object-contain" />
-              )}
-              {canDelete && (
-                <button
-                  type="button"
-                  onClick={() => askDelete(message.id)}
-                  disabled={deletingId === message.id}
-                  className="mt-4 inline-flex items-center self-start rounded-full bg-[#e56b8a] px-3 py-2 text-sm font-bold text-white disabled:opacity-60"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  <span className="ml-2">{deletingId === message.id ? t('corner_deleting') : t('corner_delete')}</span>
-                </button>
-              )}
-            </article>
-          ))}
-        </div>
+            </div>
+          )}
+          {feedItems.length > 0 && (
+            <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
+              {feedItems.map((message) => renderMessageCard(message))}
+            </div>
+          )}
+        </>
       )}
       {deleteTargetId && (
         <div

@@ -1,8 +1,9 @@
 export const STACK_BOARD_WIDTH = 320;
 export const STACK_BOARD_HEIGHT = 400;
 export const STACK_DROP_LINE_Y = 72;
-export const STACK_SIZE_COUNT = 6;
-export const STACK_RADII = [18, 26, 36, 48, 62, 80];
+export const STACK_SIZE_COUNT = 10;
+/** Size 1→10; size 10 = radius size 6 cũ (80), khoảng cách giữa các size đều hơn. */
+export const STACK_RADII = [18, 25, 32, 39, 46, 53, 60, 67, 73, 80];
 export const STACK_WARNING_MS = 2500;
 export const STACK_SETTLED_SPEED = 55;
 export const STACK_IMAGES = [
@@ -12,16 +13,21 @@ export const STACK_IMAGES = [
   '/images/Asset%204.png',
   '/images/logo%202.png',
   '/images/oxad-omai.jpg',
+  '/images/logo%203.png',
+  '/images/avt-opt.png',
+  '/images/Asset%201.png',
+  '/images/Asset%204.png',
 ];
 
 /**
- * Lấy 6 ảnh hình tròn. Ô admin để trống thì dùng ảnh mặc định của size đó.
+ * Lấy đúng 10 ảnh hình tròn. Ô admin để trống thì dùng ảnh mặc định của size đó.
  * @param {string[] | undefined} custom Ảnh admin đã lưu, theo thứ tự size nhỏ đến lớn.
- * @returns {string[]} Đúng 6 đường dẫn.
+ * @returns {string[]} Đúng 10 đường dẫn.
  */
 export function resolveStackImages(custom?: string[]): string[] {
-  return STACK_IMAGES.map((fallback, index) => {
+  return Array.from({ length: STACK_SIZE_COUNT }, (_, index) => {
     const value = custom?.[index];
+    const fallback = STACK_IMAGES[index] || STACK_IMAGES[index % STACK_IMAGES.length];
     return value && value.trim() ? value.trim() : fallback;
   });
 }
@@ -59,20 +65,30 @@ export function randomDropSize(): number {
 }
 
 /**
- * Tạo một hình mới, kẹp trong sân để không lọt ra ngoài.
+ * Tung độ thả: luôn nằm phía trên vạch đỏ, đáy hình gần sát vạch.
+ * @param {number} sizeIndex Size sắp thả.
+ * @returns {number}
+ */
+export function dropYForSize(sizeIndex: number): number {
+  const radius = STACK_RADII[sizeIndex];
+  return Math.max(radius, STACK_DROP_LINE_Y - radius - 2);
+}
+
+/**
+ * Tạo hình mới. Y luôn dóng phía trên vạch đỏ; X theo chỗ bấm (đã kẹp trong sân).
  * @param {number} id Id duy nhất trong ván.
  * @param {number} x Hoành độ chỗ bấm.
- * @param {number} y Tung độ chỗ bấm.
+ * @param {number} _y Bỏ qua — luôn thả trên vạch.
  * @param {number} sizeIndex Size bắt đầu, thường là 0.
  * @param {number} now Mốc thời gian để chưa ghép ngay lúc vừa thả.
  * @returns {StackPiece}
  */
-export function createStackPiece(id: number, x: number, y: number, sizeIndex: number, now: number): StackPiece {
+export function createStackPiece(id: number, x: number, _y: number, sizeIndex: number, now: number): StackPiece {
   const radius = STACK_RADII[sizeIndex];
   return {
     id,
     x: clamp(x, radius, STACK_BOARD_WIDTH - radius),
-    y: clamp(y, radius, STACK_BOARD_HEIGHT - radius),
+    y: dropYForSize(sizeIndex),
     vx: 0,
     vy: 80,
     sizeIndex,

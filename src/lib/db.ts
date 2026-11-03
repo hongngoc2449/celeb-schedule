@@ -447,20 +447,38 @@ async function deleteUploadedImageByUrl(imageUrl?: string): Promise<void> {
 }
 
 /**
- * Danh sách lời nhắn, mới nhất trước.
+ * Sắp xếp: card đã ghim trước (pinnedAt mới hơn đứng đầu), rồi lời nhắn thường theo ngày.
+ * @param {FanMessage[]} messages Danh sách gốc.
+ * @returns {FanMessage[]}
+ */
+function sortFanMessages(messages: FanMessage[]): FanMessage[] {
+  return [...messages].sort((left, right) => {
+    const leftPinned = Boolean(left.pinned);
+    const rightPinned = Boolean(right.pinned);
+    if (leftPinned !== rightPinned) return leftPinned ? -1 : 1;
+    if (leftPinned && rightPinned) {
+      return (right.pinnedAt || '').localeCompare(left.pinnedAt || '');
+    }
+    return right.createdAt.localeCompare(left.createdAt);
+  });
+}
+
+/**
+ * Danh sách lời nhắn: ghim trước, còn lại mới nhất trước.
  * @returns {Promise<FanMessage[]>}
  */
 export async function getFanMessages(): Promise<FanMessage[]> {
   const { db } = await connectToDatabase();
   if (db) {
-    const items = await db.collection<FanMessage>('fan_messages').find({}).sort({ createdAt: -1 }).toArray();
-    return items.map(({ _id, ...rest }: FanMessage & { _id?: { toString(): string } }) => ({
-      ...rest,
-      id: rest.id || _id?.toString() || '',
-    }));
+    const items = await db.collection<FanMessage>('fan_messages').find({}).toArray();
+    return sortFanMessages(
+      items.map(({ _id, ...rest }: FanMessage & { _id?: { toString(): string } }) => ({
+        ...rest,
+        id: rest.id || _id?.toString() || '',
+      }))
+    );
   }
-  const messages = getLocalStore().messages || [];
-  return [...messages].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+  return sortFanMessages(getLocalStore().messages || []);
 }
 
 /**
@@ -473,6 +491,7 @@ export async function createFanMessage(item: Omit<FanMessage, 'id' | 'createdAt'
     ...item,
     id: 'msg-' + Date.now(),
     createdAt: new Date().toISOString(),
+    heartCount: item.heartCount ?? 0,
   };
 
   const { db } = await connectToDatabase();
@@ -486,6 +505,78 @@ export async function createFanMessage(item: Omit<FanMessage, 'id' | 'createdAt'
   store.messages.unshift(message);
   saveLocalStore(store);
   return message;
+}
+
+/**
+ * Cộng / trừ reaction tim. delta chỉ nhận 1 hoặc -1.
+ * @param {string} id Id lời nhắn.
+ * @param {1 | -1} delta Hướng cập nhật.
+ * @returns {Promise<FanMessage | null>}
+ */
+export async function reactFanMessage(id: string, delta: 1 | -1): Promise<FanMessage | null> {
+  const { db } = await connectToDatabase();
+  if (db) {
+    const existing = await db.collection<FanMessage>('fan_messages').findOne({ id });
+    if (!existing) return null;
+    const nextCount = Math.max(0, (existing.heartCount || 0) + delta);
+    await db.collection('fan_messages').updateOne({ id }, { $set: { heartCount: nextCount } });
+    const { _id, ...rest } = existing as FanMessage & { _id?: unknown };
+    return { ...rest, id: rest.id || id, heartCount: nextCount };
+  }
+
+  const store = getLocalStore();
+  const index = store.messages?.findIndex((item) => item.id === id) ?? -1;
+  if (index < 0 || !store.messages) return null;
+  const current = store.messages[index];
+  const updated: FanMessage = {
+    ...current,
+    heartCount: Math.max(0, (current.heartCount || 0) + delta),
+  };
+  store.messages[index] = updated;
+  saveLocalStore(store);
+  return updated;
+}
+
+/**
+ * Ghim / bỏ ghim lời nhắn. Chỉ gọi sau khi đã kiểm tra quyền admin.
+ * @param {string} id Id lời nhắn.
+ * @param {boolean} pinned true = ghim lên đầu.
+ * @returns {Promise<FanMessage | null>} Bản ghi sau cập nhật, hoặc null nếu không tìm thấy.
+ */
+export async function setFanMessagePinned(id: string, pinned: boolean): Promise<FanMessage | null> {
+  const pinnedAt = pinned ? new Date().toISOString() : undefined;
+  const { db } = await connectToDatabase();
+  if (db) {
+    const existing = await db.collection<FanMessage>('fan_messages').findOne({ id });
+    if (!existing) return null;
+    const { _id, ...rest } = existing as FanMessage & { _id?: unknown };
+    const updated: FanMessage = {
+      ...rest,
+      id: rest.id || id,
+      pinned,
+      pinnedAt: pinned ? pinnedAt : undefined,
+    };
+    if (pinned) {
+      await db.collection('fan_messages').updateOne({ id }, { $set: { pinned: true, pinnedAt } });
+    } else {
+      await db.collection('fan_messages').updateOne({ id }, { $set: { pinned: false }, $unset: { pinnedAt: '' } });
+    }
+    return updated;
+  }
+
+  const store = getLocalStore();
+  const index = store.messages?.findIndex((item) => item.id === id) ?? -1;
+  if (index < 0 || !store.messages) return null;
+  const current = store.messages[index];
+  const updated: FanMessage = {
+    ...current,
+    pinned,
+    pinnedAt: pinned ? pinnedAt : undefined,
+  };
+  if (!pinned) delete updated.pinnedAt;
+  store.messages[index] = updated;
+  saveLocalStore(store);
+  return updated;
 }
 
 /**

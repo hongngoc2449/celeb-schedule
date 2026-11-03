@@ -20,6 +20,45 @@ interface FanCornerPageProps {
 const REACTED_STORAGE_KEY = 'osad-fan-reacted-ids';
 
 /**
+ * Khóa ngày theo timezone máy người xem (YYYY-MM-DD).
+ * @param {string | Date} value Thời điểm.
+ * @returns {string}
+ */
+function toLocalDayKey(value: string | Date): string {
+  const date = value instanceof Date ? value : new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const FEED_PAGE_SIZE = 9;
+const DAY_FILTER_ALL = 'all';
+
+/**
+ * Nhãn ngày cho bộ lọc.
+ * @param {string} dayKey `all` hoặc YYYY-MM-DD.
+ * @param {string} todayKey Ngày hôm nay.
+ * @param {{ all: string; today: string }} labels Text Tất cả / Hôm nay.
+ * @returns {string}
+ */
+function formatDayLabel(
+  dayKey: string,
+  todayKey: string,
+  labels: { all: string; today: string }
+): string {
+  if (dayKey === DAY_FILTER_ALL) return labels.all;
+  if (dayKey === todayKey) return labels.today;
+  const [year, month, day] = dayKey.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('vi-VN', {
+    weekday: 'short',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+/**
  * Ghim trước, rồi mới đến lời nhắn thường (mới nhất trước).
  * @param {FanMessage[]} messages Danh sách hiện tại.
  * @returns {FanMessage[]}
@@ -122,6 +161,10 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
   const [gameOpen, setGameOpen] = useState(false);
   const closeGame = useCallback(() => setGameOpen(false), []);
   const [notice, setNotice] = useState<{ tone: NoticeTone; message: string } | null>(null);
+  const [selectedDay, setSelectedDay] = useState(DAY_FILTER_ALL);
+  const [visibleCount, setVisibleCount] = useState(FEED_PAGE_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const todayKey = toLocalDayKey(new Date());
 
   useEffect(() => {
     setItems(sortCornerMessages(messages));
@@ -371,8 +414,39 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
 
   const softField = 'mt-1 w-full rounded-2xl border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-semibold text-[#4a2430] outline-none focus:border-[#e58aa0]';
   const softButton = 'inline-flex items-center rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144]';
+  const dayOptions = [
+    DAY_FILTER_ALL,
+    ...Array.from(new Set(items.map((item) => toLocalDayKey(item.createdAt)))).sort((left, right) =>
+      right.localeCompare(left)
+    ),
+  ];
   const pinnedItems = items.filter((item) => item.pinned);
-  const feedItems = items.filter((item) => !item.pinned);
+  const feedItems = items.filter((item) => {
+    if (item.pinned) return false;
+    if (selectedDay === DAY_FILTER_ALL) return true;
+    return toLocalDayKey(item.createdAt) === selectedDay;
+  });
+  const visibleFeedItems = feedItems.slice(0, visibleCount);
+  const hasMoreFeed = visibleCount < feedItems.length;
+
+  useEffect(() => {
+    setVisibleCount(FEED_PAGE_SIZE);
+  }, [selectedDay, items.length]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node || !hasMoreFeed) return undefined;
+    const total = feedItems.length;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        setVisibleCount((current) => Math.min(current + FEED_PAGE_SIZE, total));
+      },
+      { rootMargin: '240px 0px' }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMoreFeed, feedItems.length, visibleCount]);
 
   /**
    * Render một card lời nhắn (ghim hoặc thường).
@@ -632,9 +706,50 @@ export default function FanCornerPage({ messages, canDelete, siteTexts, stackIma
               </div>
             </div>
           )}
-          {feedItems.length > 0 && (
-            <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
-              {feedItems.map((message) => renderMessageCard(message))}
+
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <label className="flex flex-wrap items-center gap-2 text-sm font-bold text-[#6d2940]">
+              <span>{t('corner_filter_label')}</span>
+              <select
+                value={selectedDay}
+                onChange={(event) => setSelectedDay(event.target.value)}
+                className="min-w-[200px] rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-semibold text-[#4a2430] outline-none focus:border-[#e58aa0]"
+              >
+                {dayOptions.map((dayKey) => (
+                  <option key={dayKey} value={dayKey}>
+                    {formatDayLabel(dayKey, todayKey, {
+                      all: t('corner_filter_all'),
+                      today: t('corner_filter_today'),
+                    })}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {selectedDay !== DAY_FILTER_ALL && (
+              <button
+                type="button"
+                onClick={() => setSelectedDay(DAY_FILTER_ALL)}
+                className="self-start rounded-full border border-[#f0c4ce] bg-white px-3 py-2 text-sm font-bold text-[#7a3144]"
+              >
+                {t('corner_filter_all')}
+              </button>
+            )}
+          </div>
+
+          {feedItems.length > 0 ? (
+            <>
+              <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
+                {visibleFeedItems.map((message) => renderMessageCard(message))}
+              </div>
+              {hasMoreFeed && (
+                <div ref={loadMoreRef} className="mt-4 py-3 text-center text-sm font-semibold text-[#a06b7c]">
+                  {t('corner_loading_more')}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="rounded-3xl border border-[#f3c6d0] bg-[#fffdfb]/80 p-6 text-sm font-semibold text-[#8a5364] shadow-[0_12px_30px_rgba(180,90,120,0.08)]">
+              {selectedDay === DAY_FILTER_ALL ? t('corner_empty') : t('corner_empty_day')}
             </div>
           )}
         </>

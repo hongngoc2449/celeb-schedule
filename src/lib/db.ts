@@ -20,8 +20,25 @@ import { isSongType, resolveSongType } from './songType';
 const uri = process.env.MONGODB_URI || '';
 const dbName = process.env.MONGODB_DB || 'osad_celebrity';
 
-let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+type MongoCache = {
+  client: MongoClient | null;
+  db: Db | null;
+  promise: Promise<{ client: MongoClient; db: Db }> | null;
+};
+
+/**
+ * Cache theo process (Vercel serverless). Tránh mỗi request mở client mới.
+ * maxPoolSize nhỏ vì Free Atlas chỉ ~500 connection toàn cluster.
+ */
+const globalMongo = globalThis as typeof globalThis & { __osadMongo?: MongoCache };
+const mongoCache: MongoCache = globalMongo.__osadMongo || {
+  client: null,
+  db: null,
+  promise: null,
+};
+if (!globalMongo.__osadMongo) {
+  globalMongo.__osadMongo = mongoCache;
+}
 
 // Local persistent JSON storage fallback when MongoDB_URI is not provided yet
 const LOCAL_DATA_FILE = path.join(process.cwd(), 'data-store.json');
@@ -107,17 +124,28 @@ export async function connectToDatabase(): Promise<{ client: MongoClient | null;
     return { client: null, db: null };
   }
 
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+  if (mongoCache.client && mongoCache.db) {
+    return { client: mongoCache.client, db: mongoCache.db };
   }
 
   try {
-    const client = await MongoClient.connect(uri);
-    const db = client.db(dbName);
-    cachedClient = client;
-    cachedDb = db;
-    return { client, db };
+    if (!mongoCache.promise) {
+      mongoCache.promise = MongoClient.connect(uri, {
+        // Serverless: mỗi instance giữ ít connection, tránh đụng trần Free 500.
+        maxPoolSize: 5,
+        minPoolSize: 0,
+        maxIdleTimeMS: 60000,
+        serverSelectionTimeoutMS: 5000,
+      }).then((client) => {
+        const db = client.db(dbName);
+        mongoCache.client = client;
+        mongoCache.db = db;
+        return { client, db };
+      });
+    }
+    return await mongoCache.promise;
   } catch (error) {
+    mongoCache.promise = null;
     console.warn('MongoDB connection failed, falling back to local store:', error);
     return { client: null, db: null };
   }

@@ -536,6 +536,36 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     defaultValue: 'Chưa có lời nhắn nào. Bấm Viết lời nhắn để gửi tấm thẻ đầu tiên.',
   },
   {
+    id: 'corner_empty_day',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Dòng khi ngày đã chọn không có lời nhắn',
+    defaultValue: 'Ngày này chưa có lời nhắn.',
+  },
+  {
+    id: 'corner_filter_label',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Nhãn bộ lọc ngày lời nhắn',
+    defaultValue: 'Xem theo ngày',
+  },
+  {
+    id: 'corner_filter_all',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tuỳ chọn lọc tất cả ngày',
+    defaultValue: 'Tất cả',
+  },
+  {
+    id: 'corner_filter_today',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Tuỳ chọn lọc hôm nay',
+    defaultValue: 'Hôm nay',
+  },
+  {
+    id: 'corner_loading_more',
+    section: 'Góc nhỏ gửi OSAD',
+    location: 'Dòng đang tải thêm lời nhắn',
+    defaultValue: 'Đang tải thêm...',
+  },
+  {
     id: 'corner_delete',
     section: 'Góc nhỏ gửi OSAD',
     location: 'Nút xóa lời nhắn của admin',

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Calendar, User, Music, Image as ImageIcon, Heart } from 'lucide-react';
+import { Calendar, User, Music, Image as ImageIcon, Heart, Mail } from 'lucide-react';
 import { GeoCluster } from '@/components/GeometricDecor';
 import { CelebrityProfile } from '@/types';
 import { getSiteText } from '@/lib/siteTexts';
@@ -21,20 +21,20 @@ export default function Navbar({ profile }: { profile?: CelebrityProfile }) {
 
     // Check initial hash
     const initialHash = window.location.hash.replace('#', '');
-    if (initialHash && ['schedule', 'about', 'gallery'].includes(initialHash)) {
+    if (initialHash && ['schedule', 'about', 'gallery', 'contact'].includes(initialHash)) {
       setActiveSection(initialHash);
     }
 
     const handleHashChange = () => {
       const h = window.location.hash.replace('#', '');
-      if (h && ['schedule', 'about', 'gallery'].includes(h)) {
+      if (h && ['schedule', 'about', 'gallery', 'contact'].includes(h)) {
         setActiveSection(h);
       }
     };
     window.addEventListener('hashchange', handleHashChange);
 
     // Scroll spy for smooth section tracking
-    const sectionIds = ['schedule', 'about', 'gallery'];
+    const sectionIds = ['schedule', 'about', 'gallery', 'contact'];
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 220;
       for (let i = sectionIds.length - 1; i >= 0; i--) {
@@ -64,6 +64,7 @@ export default function Navbar({ profile }: { profile?: CelebrityProfile }) {
   const isMusicActive = pathname === '/music';
   const isAboutActive = pathname === '/' && activeSection === 'about';
   const isGalleryActive = pathname === '/' && activeSection === 'gallery';
+  const isContactActive = pathname === '/' && activeSection === 'contact';
   const isCornerActive = pathname === '/goc-nho';
 
   // Active / inactive button styles
@@ -106,6 +107,15 @@ export default function Navbar({ profile }: { profile?: CelebrityProfile }) {
       iconClass: 'text-brand-green',
       active: isGalleryActive,
       onClick: () => setActiveSection('gallery'),
+    },
+    {
+      key: 'contact',
+      href: '/#contact',
+      label: t('header_nav_contact'),
+      icon: Mail,
+      iconClass: 'text-brand-red',
+      active: isContactActive,
+      onClick: () => setActiveSection('contact'),
     },
   ];
 

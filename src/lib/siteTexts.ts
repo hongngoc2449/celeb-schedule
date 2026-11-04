@@ -45,6 +45,12 @@ export const SITE_TEXT_DEFINITIONS: SiteTextDefinition[] = [
     defaultValue: 'Thư Viện',
   },
   {
+    id: 'header_nav_contact',
+    section: 'Header & Logo',
+    location: 'Nút Menu: Liên hệ',
+    defaultValue: 'Liên hệ',
+  },
+  {
     id: 'header_nav_corner',
     section: 'Header & Logo',
     location: 'Nút góc phải: Góc nhỏ gửi OSAD',
